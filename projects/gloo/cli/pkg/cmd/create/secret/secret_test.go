@@ -1,6 +1,7 @@
 package secret_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -21,8 +22,13 @@ import (
 
 var _ = Describe("Secret", func() {
 
+	var (
+		ctx context.Context
+	)
+
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
+		ctx, _ = context.WithCancel(context.Background())
 	})
 
 	AfterEach(func() {
@@ -48,7 +54,7 @@ var _ = Describe("Secret", func() {
 			err := testutils.Glooctl(command)
 			Expect(err).NotTo(HaveOccurred())
 
-			secret, err := helpers.MustSecretClient().Read(namespace, "test", clients.ReadOpts{})
+			secret, err := helpers.MustSecretClient(ctx).Read(namespace, "test", clients.ReadOpts{})
 			Expect(err).NotTo(HaveOccurred())
 
 			aws := v1.AwsSecret{
@@ -111,7 +117,7 @@ type: Opaque
 			err := testutils.Glooctl(command)
 			Expect(err).NotTo(HaveOccurred())
 
-			secret, err := helpers.MustSecretClient().Read(namespace, "test", clients.ReadOpts{})
+			secret, err := helpers.MustSecretClient(ctx).Read(namespace, "test", clients.ReadOpts{})
 			Expect(err).NotTo(HaveOccurred())
 
 			azure := v1.AzureSecret{
@@ -155,7 +161,7 @@ metadata:
 			err := testutils.Glooctl(command)
 			Expect(err).NotTo(HaveOccurred())
 
-			secret, err := helpers.MustSecretClient().Read(namespace, "test", clients.ReadOpts{})
+			secret, err := helpers.MustSecretClient(ctx).Read(namespace, "test", clients.ReadOpts{})
 			Expect(err).NotTo(HaveOccurred())
 
 			header := v1.HeaderSecret{
@@ -188,7 +194,7 @@ metadata:
 				RootCa: "foo",
 			}
 
-			secret, err := helpers.MustSecretClient().Read("gloo-system", "valid", clients.ReadOpts{})
+			secret, err := helpers.MustSecretClient(ctx).Read("gloo-system", "valid", clients.ReadOpts{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(*secret.GetTls()).To(Equal(tls))
 		})
@@ -231,14 +237,14 @@ metadata:
 						err := testutils.Glooctl(args)
 						Expect(err).NotTo(HaveOccurred())
 
-						secret, err := helpers.MustSecretClient().Read("gloo-system", kp.resourceName, clients.ReadOpts{})
+						secret, err := helpers.MustSecretClient(ctx).Read("gloo-system", kp.resourceName, clients.ReadOpts{})
 						Expect(err).NotTo(HaveOccurred())
 						Expect(*secret.GetTls()).To(Equal(tls))
 					} else {
 						err := testutils.Glooctl(args)
 						Expect(err).To(HaveOccurred())
 
-						_, err = helpers.MustSecretClient().Read("gloo-system", kp.resourceName, clients.ReadOpts{})
+						_, err = helpers.MustSecretClient(ctx).Read("gloo-system", kp.resourceName, clients.ReadOpts{})
 						Expect(err).To(HaveOccurred())
 					}
 

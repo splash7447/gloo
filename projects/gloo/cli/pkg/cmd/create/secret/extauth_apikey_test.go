@@ -1,6 +1,7 @@
 package secret_test
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients"
@@ -18,15 +19,20 @@ import (
 
 var _ = Describe("ExtauthApiKey", func() {
 
+	var (
+		ctx context.Context
+	)
+
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
+		ctx, _ = context.WithCancel(context.Background())
 	})
 
 	It("should create secret without labels", func() {
 		err := testutils.Glooctl("create secret apikey --name user --namespace gloo-system --apikey secretApiKey")
 		Expect(err).NotTo(HaveOccurred())
 
-		secret, err := helpers.MustSecretClient().Read("gloo-system", "user", clients.ReadOpts{})
+		secret, err := helpers.MustSecretClient(ctx).Read("gloo-system", "user", clients.ReadOpts{})
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(secret.GetApiKey()).To(Equal(&extauthpb.ApiKeySecret{
@@ -38,7 +44,7 @@ var _ = Describe("ExtauthApiKey", func() {
 		err := testutils.Glooctl("create secret apikey --name user --namespace gloo-system --apikey secretApiKey --apikey-labels k1=v1,k2=v2")
 		Expect(err).NotTo(HaveOccurred())
 
-		secret, err := helpers.MustSecretClient().Read("gloo-system", "user", clients.ReadOpts{})
+		secret, err := helpers.MustSecretClient(ctx).Read("gloo-system", "user", clients.ReadOpts{})
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(secret.GetApiKey()).To(Equal(&extauthpb.ApiKeySecret{

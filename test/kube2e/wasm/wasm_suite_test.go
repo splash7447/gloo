@@ -1,6 +1,7 @@
 package wasm_test
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -33,6 +34,7 @@ func TestWasm(t *testing.T) {
 }
 
 var testHelper *helper.SoloTestHelper
+var ctx, _ = context.WithCancel(context.Background())
 
 var _ = BeforeSuite(StartTestHelper)
 var _ = AfterSuite(TearDownTestHelper)
@@ -56,7 +58,7 @@ func StartTestHelper() {
 	valueOverrideFile, cleanupFunc := getHelmaWasmValuesOverrideFile()
 	defer cleanupFunc()
 
-	err = testHelper.InstallGloo(helper.GATEWAY, 5*time.Minute, helper.ExtraArgs("--values", valueOverrideFile))
+	err = testHelper.InstallGloo(ctx, helper.GATEWAY, 5*time.Minute, helper.ExtraArgs("--values", valueOverrideFile))
 	Expect(err).NotTo(HaveOccurred())
 
 	// Check that everything is OK
@@ -106,7 +108,7 @@ func TearDownTestHelper() {
 		Expect(testHelper).ToNot(BeNil())
 		err := testHelper.UninstallGloo()
 		Expect(err).NotTo(HaveOccurred())
-		_, err = kube2e.MustKubeClient().CoreV1().Namespaces().Get(testHelper.InstallNamespace, metav1.GetOptions{})
+		_, err = kube2e.MustKubeClient().CoreV1().Namespaces().Get(ctx, testHelper.InstallNamespace, metav1.GetOptions{})
 		Expect(apierrors.IsNotFound(err)).To(BeTrue())
 	}
 }

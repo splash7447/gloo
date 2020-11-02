@@ -2,6 +2,7 @@ package install_test
 
 import (
 	"bytes"
+	"context"
 
 	"k8s.io/client-go/kubernetes/fake"
 
@@ -27,6 +28,7 @@ var _ = Describe("Install", func() {
 		ctrl                 *gomock.Controller
 		chart                *helmchart.Chart
 		helmRelease          *release.Release
+		ctx                  context.Context
 
 		glooOsVersion          = "test"
 		glooOsChartUri         = "https://storage.googleapis.com/solo-public-helm/charts/gloo-test.tgz"
@@ -80,6 +82,7 @@ rules:
 		ctrl = gomock.NewController(GinkgoT())
 		mockHelmClient = mocks.NewMockHelmClient(ctrl)
 		mockHelmInstallation = mocks.NewMockHelmInstallation(ctrl)
+		ctx, _ = context.WithCancel(context.Background())
 
 		chart = &helmchart.Chart{
 			Metadata: &helmchart.Metadata{
@@ -143,7 +146,7 @@ rules:
 		Expect(dryRunOutputBuffer.String()).To(BeEmpty())
 
 		// Check that namespace was created
-		_, err = kubeNsClient.Get(installConfig.Namespace, metav1.GetOptions{})
+		_, err = kubeNsClient.Get(ctx, installConfig.Namespace, metav1.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 	}
 
@@ -286,7 +289,7 @@ rules:
 		Expect(dryRunOutput).To(ContainSubstring("helm.sh/hook"), "Should output non-cleanup hooks")
 
 		// Make sure that namespace was not created
-		_, err = kubeNsClient.Get(installConfig.Namespace, metav1.GetOptions{})
+		_, err = kubeNsClient.Get(ctx, installConfig.Namespace, metav1.GetOptions{})
 		Expect(err).To(HaveOccurred())
 	})
 })

@@ -2,6 +2,7 @@ package version
 
 import (
 	"bytes"
+	"context"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -17,25 +18,27 @@ var _ = Describe("version command", func() {
 	var (
 		ctrl   *gomock.Controller
 		client *mock_version.MockServerVersion
+		ctx    context.Context
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(T)
 		client = mock_version.NewMockServerVersion(ctrl)
+		ctx, _ = context.WithCancel(context.Background())
 	})
 
 	Context("getVersion", func() {
 		It("will error if an error occurs while getting the version", func() {
 			fakeErr := eris.New("test")
 			client.EXPECT().Get().Return(nil, fakeErr).Times(1)
-			_, err := GetClientServerVersions(client)
+			_, err := GetClientServerVersions(ctx, client)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(Equal(fakeErr))
 		})
 		It("can get the version", func() {
 			v := make([]*version.ServerVersion, 1)
 			client.EXPECT().Get().Return(v, nil).Times(1)
-			vrs, err := GetClientServerVersions(client)
+			vrs, err := GetClientServerVersions(ctx, client)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(v).To(Equal(vrs.Server))
 		})

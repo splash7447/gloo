@@ -1,6 +1,7 @@
 package metricsservice
 
 import (
+	"context"
 	"encoding/json"
 	"sync"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/solo-io/go-utils/kubeutils"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubeclient "k8s.io/client-go/kubernetes"
 	k8s "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -16,8 +18,8 @@ import (
 //go:generate mockgen -destination mocks/mock_storage.go -package mocks github.com/solo-io/gloo/projects/metrics/pkg/metricsservice StorageClient
 
 type StorageClient interface {
-	RecordUsage(usage *GlobalUsage) error
-	GetUsage() (*GlobalUsage, error)
+	RecordUsage(ctx context.Context, usage *GlobalUsage) error
+	GetUsage(ctx context.Context) (*GlobalUsage, error)
 }
 
 type EnvoyMetrics struct {
@@ -85,11 +87,11 @@ func NewDefaultConfigMapStorage(podNamespace string) (*configMapStorageClient, e
 
 // Record a new set of metrics for the given envoy instance id
 // The envoy instance id template is set in the gateway proxy configmap: `envoy.yaml`.node.id
-func (s *configMapStorageClient) RecordUsage(usage *GlobalUsage) error {
+func (s *configMapStorageClient) RecordUsage(ctx context.Context, usage *GlobalUsage) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	_, configMap, err := s.getExistingUsage()
+	_, configMap, err := s.getExistingUsage(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,15 +102,15 @@ func (s *configMapStorageClient) RecordUsage(usage *GlobalUsage) error {
 	}
 	configMap.Data = map[string]string{usageDataKey: string(bytes)}
 
-	_, err = s.configMapClient.Update(configMap)
+	_, err = s.configMapClient.Update(ctx, configMap, metav1.UpdateOptions{})
 	return err
 }
 
-func (s *configMapStorageClient) GetUsage() (*GlobalUsage, error) {
+func (s *configMapStorageClient) GetUsage(ctx context.Context) (*GlobalUsage, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	existingUsage, _, err := s.getExistingUsage()
+	existingUsage, _, err := s.getExistingUsage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,8 +121,8 @@ func (s *configMapStorageClient) GetUsage() (*GlobalUsage, error) {
 // returns the old usage, the config map it came from, and any error
 // the config map is nil if and only if an error occurs
 // the old usage is nil if it has not been written yet or if there was an error reading it
-func (s *configMapStorageClient) getExistingUsage() (*GlobalUsage, *corev1.ConfigMap, error) {
-	cm, err := s.configMapClient.Get(MetricsConfigMapName, v1.GetOptions{})
+func (s *configMapStorageClient) getExistingUsage(ctx context.Context) (*GlobalUsage, *corev1.ConfigMap, error) {
+	cm, err := s.configMapClient.Get(ctx, MetricsConfigMapName, v1.GetOptions{})
 	if err != nil {
 		return nil, nil, err
 	}

@@ -1,6 +1,7 @@
 package usage
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -31,8 +32,8 @@ type DefaultUsageReader struct {
 
 var _ client.UsagePayloadReader = &DefaultUsageReader{}
 
-func (d *DefaultUsageReader) GetPayload() (map[string]string, error) {
-	usage, err := d.MetricsStorage.GetUsage()
+func (d *DefaultUsageReader) GetPayload(ctx context.Context) (map[string]string, error) {
+	usage, err := d.MetricsStorage.GetUsage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +74,7 @@ type CliUsageReader struct {
 var _ client.UsagePayloadReader = &CliUsageReader{}
 
 // when reporting usage, also include the args that glooctl was invoked with
-func (c *CliUsageReader) GetPayload() (map[string]string, error) {
+func (c *CliUsageReader) GetPayload(ctx context.Context) (map[string]string, error) {
 	argsMap := map[string]string{}
 
 	if len(os.Args) > 1 {

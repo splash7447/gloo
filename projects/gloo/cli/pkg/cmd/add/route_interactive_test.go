@@ -25,7 +25,7 @@ var _ = Describe("Routes interactive", func() {
 			},
 		}, clients.WriteOpts{})
 
-		upClient := helpers.MustUpstreamClient()
+		upClient := helpers.MustUpstreamClient(nil)
 		upClient.Write(&gloov1.Upstream{
 			Metadata: core.Metadata{
 				Name:      "up",

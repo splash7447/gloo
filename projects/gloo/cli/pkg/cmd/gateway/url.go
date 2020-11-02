@@ -16,7 +16,8 @@ func urlCmd(opts *options.Options, optionsFunc ...cliutils.OptionsFunc) *cobra.C
 		Short: "print the http endpoint for a proxy",
 		Long:  "Use this command to view the HTTP URL of a Proxy reachable from outside the cluster. You can connect to this address from a host on the same network (such as the host machine, in the case of minikube/minishift).",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ingressHost, err := cliutil.GetIngressHost(opts.Proxy.Name, opts.Metadata.Namespace, opts.Proxy.Port,
+			// todo is this the right way to get the context?
+			ingressHost, err := cliutil.GetIngressHost(opts.Top.Ctx, opts.Proxy.Name, opts.Metadata.Namespace, opts.Proxy.Port,
 				opts.Proxy.LocalCluster, opts.Proxy.LocalClusterName)
 			if err != nil {
 				return err
@@ -45,7 +46,8 @@ func addressCmd(opts *options.Options, optionsFunc ...cliutils.OptionsFunc) *cob
 		Short: "print the socket address for a proxy",
 		Long:  "Use this command to view the address (host:port) of a Proxy reachable from outside the cluster. You can connect to this address from a host on the same network (such as the host machine, in the case of minikube/minishift).",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ingressHost, err := cliutil.GetIngressHost(opts.Proxy.Name, opts.Metadata.Namespace, opts.Proxy.Port,
+			// todo is this the right way to get the context?
+			ingressHost, err := cliutil.GetIngressHost(opts.Top.Ctx, opts.Proxy.Name, opts.Metadata.Namespace, opts.Proxy.Port,
 				opts.Proxy.LocalCluster, opts.Proxy.LocalClusterName)
 			if err != nil {
 				return err

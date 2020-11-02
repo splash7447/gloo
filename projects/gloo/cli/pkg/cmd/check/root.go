@@ -71,7 +71,7 @@ func RootCmd(opts *options.Options, optionsFunc ...cliutils.OptionsFunc) *cobra.
 }
 
 func CheckResources(opts *options.Options) (bool, error) {
-	err := checkConnection(opts.Metadata.Namespace)
+	err := checkConnection(opts.Top.Ctx, opts.Metadata.Namespace)
 	if err != nil {
 		return false, err
 	}
@@ -94,50 +94,50 @@ func CheckResources(opts *options.Options) (bool, error) {
 		return false, err
 	}
 
-	namespaces, err := getNamespaces(settings)
+	namespaces, err := getNamespaces(opts.Top.Ctx, settings)
 	if err != nil {
 		return false, err
 	}
 
-	knownUpstreams, ok, err := checkUpstreams(namespaces)
+	knownUpstreams, ok, err := checkUpstreams(opts.Top.Ctx, namespaces)
 	if !ok || err != nil {
 		return ok, err
 	}
 
 	includeUpstreamGroup := doesNotContain(opts.Top.CheckName, "upstreamgroup")
 	if includeUpstreamGroup {
-		ok, err := checkUpstreamGroups(namespaces)
+		ok, err := checkUpstreamGroups(opts.Top.Ctx, namespaces)
 		if !ok || err != nil {
 			return ok, err
 		}
 	}
 
-	knownAuthConfigs, ok, err := checkAuthConfigs(namespaces)
+	knownAuthConfigs, ok, err := checkAuthConfigs(opts.Top.Ctx, namespaces)
 	if !ok || err != nil {
 		return ok, err
 	}
 
-	knownRateLimitConfigs, ok, err := checkRateLimitConfigs(namespaces)
+	knownRateLimitConfigs, ok, err := checkRateLimitConfigs(opts.Top.Ctx, namespaces)
 	if !ok || err != nil {
 		return ok, err
 	}
 
 	includeSecrets := doesNotContain(opts.Top.CheckName, "secrets")
 	if includeSecrets {
-		ok, err := checkSecrets(namespaces)
+		ok, err := checkSecrets(opts.Top.Ctx, namespaces)
 		if !ok || err != nil {
 			return ok, err
 		}
 	}
 
-	ok, err = checkVirtualServices(namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs)
+	ok, err = checkVirtualServices(opts.Top.Ctx, namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs)
 	if !ok || err != nil {
 		return ok, err
 	}
 
 	includeGateway := doesNotContain(opts.Top.CheckName, "gateways")
 	if includeGateway {
-		ok, err := checkGateways(namespaces)
+		ok, err := checkGateways(opts.Top.Ctx, namespaces)
 		if !ok || err != nil {
 			return ok, err
 		}
@@ -161,12 +161,12 @@ func CheckResources(opts *options.Options) (bool, error) {
 func getAndCheckDeployments(opts *options.Options) (*appsv1.DeploymentList, bool, error) {
 	fmt.Printf("Checking deployments... ")
 	client := helpers.MustKubeClient()
-	_, err := client.CoreV1().Namespaces().Get(opts.Metadata.Namespace, metav1.GetOptions{})
+	_, err := client.CoreV1().Namespaces().Get(opts.Top.Ctx, opts.Metadata.Namespace, metav1.GetOptions{})
 	if err != nil {
 		fmt.Printf("Gloo namespace does not exist\n")
 		return nil, false, err
 	}
-	deployments, err := client.AppsV1().Deployments(opts.Metadata.Namespace).List(metav1.ListOptions{})
+	deployments, err := client.AppsV1().Deployments(opts.Metadata.Namespace).List(opts.Top.Ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, false, err
 	}
@@ -237,7 +237,7 @@ func getAndCheckDeployments(opts *options.Options) (*appsv1.DeploymentList, bool
 func checkPods(opts *options.Options) (bool, error) {
 	fmt.Printf("Checking pods... ")
 	client := helpers.MustKubeClient()
-	pods, err := client.CoreV1().Pods(opts.Metadata.Namespace).List(metav1.ListOptions{})
+	pods, err := client.CoreV1().Pods(opts.Metadata.Namespace).List(opts.Top.Ctx, metav1.ListOptions{})
 	if err != nil {
 		return false, err
 	}
@@ -290,23 +290,23 @@ func checkPods(opts *options.Options) (bool, error) {
 }
 
 func getSettings(opts *options.Options) (*v1.Settings, error) {
-	client := helpers.MustNamespacedSettingsClient(opts.Metadata.GetNamespace())
+	client := helpers.MustNamespacedSettingsClient(opts.Top.Ctx, opts.Metadata.GetNamespace())
 	return client.Read(opts.Metadata.Namespace, defaults.SettingsName, clients.ReadOpts{})
 }
 
-func getNamespaces(settings *v1.Settings) ([]string, error) {
+func getNamespaces(ctx context.Context, settings *v1.Settings) ([]string, error) {
 	if settings.WatchNamespaces != nil {
 		return settings.WatchNamespaces, nil
 	}
 
-	return helpers.GetNamespaces()
+	return helpers.GetNamespaces(ctx)
 }
 
-func checkUpstreams(namespaces []string) ([]string, bool, error) {
+func checkUpstreams(ctx context.Context, namespaces []string) ([]string, bool, error) {
 	fmt.Printf("Checking upstreams... ")
 	var knownUpstreams []string
 	for _, ns := range namespaces {
-		upstreams, err := helpers.MustNamespacedUpstreamClient(ns).List(ns, clients.ListOpts{})
+		upstreams, err := helpers.MustNamespacedUpstreamClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return nil, false, err
 		}
@@ -328,10 +328,10 @@ func checkUpstreams(namespaces []string) ([]string, bool, error) {
 	return knownUpstreams, true, nil
 }
 
-func checkUpstreamGroups(namespaces []string) (bool, error) {
+func checkUpstreamGroups(ctx context.Context, namespaces []string) (bool, error) {
 	fmt.Printf("Checking upstream groups... ")
 	for _, ns := range namespaces {
-		upstreamGroups, err := helpers.MustNamespacedUpstreamGroupClient(ns).List(ns, clients.ListOpts{})
+		upstreamGroups, err := helpers.MustNamespacedUpstreamGroupClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return false, err
 		}
@@ -352,11 +352,11 @@ func checkUpstreamGroups(namespaces []string) (bool, error) {
 	return true, nil
 }
 
-func checkAuthConfigs(namespaces []string) ([]string, bool, error) {
+func checkAuthConfigs(ctx context.Context, namespaces []string) ([]string, bool, error) {
 	fmt.Printf("Checking auth configs... ")
 	var knownAuthConfigs []string
 	for _, ns := range namespaces {
-		authConfigs, err := helpers.MustNamespacedAuthConfigClient(ns).List(ns, clients.ListOpts{})
+		authConfigs, err := helpers.MustNamespacedAuthConfigClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return nil, false, err
 		}
@@ -378,12 +378,12 @@ func checkAuthConfigs(namespaces []string) ([]string, bool, error) {
 	return knownAuthConfigs, true, nil
 }
 
-func checkRateLimitConfigs(namespaces []string) ([]string, bool, error) {
+func checkRateLimitConfigs(ctx context.Context, namespaces []string) ([]string, bool, error) {
 	fmt.Printf("Checking rate limit configs... ")
 	var knownConfigs []string
 	for _, ns := range namespaces {
 
-		rlcClient, err := helpers.RateLimitConfigClient([]string{ns})
+		rlcClient, err := helpers.RateLimitConfigClient(ctx, []string{ns})
 		if err != nil {
 			if isCrdNotFoundErr(err) {
 				// Just warn. If the CRD is required, the check would have failed on the crashing gloo/gloo-ee pod.
@@ -410,10 +410,10 @@ func checkRateLimitConfigs(namespaces []string) ([]string, bool, error) {
 	return knownConfigs, true, nil
 }
 
-func checkVirtualServices(namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs []string) (bool, error) {
+func checkVirtualServices(ctx context.Context, namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs []string) (bool, error) {
 	fmt.Printf("Checking virtual services... ")
 	for _, ns := range namespaces {
-		virtualServices, err := helpers.MustNamespacedVirtualServiceClient(ns).List(ns, clients.ListOpts{})
+		virtualServices, err := helpers.MustNamespacedVirtualServiceClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return false, err
 		}
@@ -506,10 +506,10 @@ func checkVirtualServices(namespaces, knownUpstreams, knownAuthConfigs, knownRat
 	return true, nil
 }
 
-func checkGateways(namespaces []string) (bool, error) {
+func checkGateways(ctx context.Context, namespaces []string) (bool, error) {
 	fmt.Printf("Checking gateways... ")
 	for _, ns := range namespaces {
-		gateways, err := helpers.MustNamespacedGatewayClient(ns).List(ns, clients.ListOpts{})
+		gateways, err := helpers.MustNamespacedGatewayClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return false, err
 		}
@@ -533,7 +533,7 @@ func checkGateways(namespaces []string) (bool, error) {
 func checkProxies(ctx context.Context, namespaces []string, glooNamespace string, deployments *appsv1.DeploymentList) (bool, error) {
 	fmt.Printf("Checking proxies... ")
 	for _, ns := range namespaces {
-		proxies, err := helpers.MustNamespacedProxyClient(ns).List(ns, clients.ListOpts{})
+		proxies, err := helpers.MustNamespacedProxyClient(ctx, ns).List(ns, clients.ListOpts{})
 		if err != nil {
 			return false, err
 		}
@@ -554,9 +554,9 @@ func checkProxies(ctx context.Context, namespaces []string, glooNamespace string
 	return checkProxiesPromStats(ctx, glooNamespace, deployments)
 }
 
-func checkSecrets(namespaces []string) (bool, error) {
+func checkSecrets(ctx context.Context, namespaces []string) (bool, error) {
 	fmt.Printf("Checking secrets... ")
-	client := helpers.MustSecretClientWithOptions(5*time.Second, namespaces)
+	client := helpers.MustSecretClientWithOptions(ctx, 5*time.Second, namespaces)
 
 	for _, ns := range namespaces {
 		_, err := client.List(ns, clients.ListOpts{})
@@ -583,12 +583,12 @@ func renderNamespaceName(namespace, name string) string {
 
 // Checks whether the cluster that the kubeconfig points at is available
 // The timeout for the kubernetes client is set to a low value to notify the user of the failure
-func checkConnection(ns string) error {
+func checkConnection(ctx context.Context, ns string) error {
 	client, err := helpers.GetKubernetesClientWithTimeout(5 * time.Second)
 	if err != nil {
 		return eris.Wrapf(err, "Could not get kubernetes client")
 	}
-	_, err = client.CoreV1().Namespaces().Get(ns, metav1.GetOptions{})
+	_, err = client.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
 	if err != nil {
 		return eris.Wrapf(err, "Could not communicate with kubernetes cluster")
 	}
