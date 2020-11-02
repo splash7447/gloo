@@ -67,9 +67,9 @@ func RootCmd(opts *options.Options, optionsFunc ...cliutils.OptionsFunc) *cobra.
 	return cmd
 }
 
-func CheckResources(opts *options.Options) (bool, error) {
+func CheckResources(opts *options.Options) error {
 	var multiErr *multierror.Error
-  
+
 	err := checkConnection(opts.Top.Ctx, opts.Metadata.Namespace)
 	if err != nil {
 		multiErr = multierror.Append(multiErr, err)
@@ -99,9 +99,10 @@ func CheckResources(opts *options.Options) (bool, error) {
 		multiErr = multierror.Append(multiErr, err)
 	}
 
-	knownUpstreams, ok, err := checkUpstreams(opts.Top.Ctx, namespaces)
-	if !ok || err != nil {
+	knownUpstreams, err := checkUpstreams(opts.Top.Ctx, namespaces)
+	if err != nil {
 		multiErr = multierror.Append(multiErr, err)
+	}
 
 	includeUpstreamGroup := doesNotContain(opts.Top.CheckName, "upstreamgroup")
 	if includeUpstreamGroup {
@@ -433,7 +434,7 @@ func checkRateLimitConfigs(ctx context.Context, namespaces []string) ([]string, 
 	return knownConfigs, nil
 }
 
-func checkVirtualServices(ctx context.Context, namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs []string)  error {
+func checkVirtualServices(ctx context.Context, namespaces, knownUpstreams, knownAuthConfigs, knownRateLimitConfigs []string) error {
 	fmt.Printf("Checking virtual services... ")
 	var multiErr *multierror.Error
 
