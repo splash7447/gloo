@@ -96,7 +96,7 @@ require (
 	k8s.io/kubectl v0.18.6
 	k8s.io/kubernetes v1.18.6
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
-	knative.dev/pkg v0.0.0-20191203174735-3444316bdeef
+	knative.dev/pkg v0.0.0-20191107185656-884d50f09454
 	knative.dev/serving v0.10.0
 	sigs.k8s.io/controller-runtime v0.6.2
 	sigs.k8s.io/yaml v1.2.0
