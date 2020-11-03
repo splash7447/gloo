@@ -1,6 +1,7 @@
 package ingress_test
 
 import (
+	"context"
 	"os"
 
 	. "github.com/onsi/ginkgo"
@@ -29,21 +30,23 @@ var _ = Describe("ResourceClient", func() {
 	var (
 		namespace string
 		cfg       *rest.Config
+		ctx       context.Context
 	)
 
 	BeforeEach(func() {
 		namespace = helpers.RandString(8)
+		ctx, _ = context.WithCancel(context.Background())
 		var err error
 		cfg, err = kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
 
 		kube, err := kubernetes.NewForConfig(cfg)
 		Expect(err).NotTo(HaveOccurred())
-		_, err = kube.CoreV1().Namespaces().Create(&kubev1.Namespace{
+		_, err = kube.CoreV1().Namespaces().Create(ctx, &kubev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: namespace,
 			},
-		})
+		}, metav1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 	})
 	AfterEach(func() {
@@ -63,7 +66,7 @@ var _ = Describe("ResourceClient", func() {
 				IntVal: 8080,
 			},
 		}
-		kubeIng, err := kubeIngressClient.Create(&v1beta1.Ingress{
+		kubeIng, err := kubeIngressClient.Create(ctx, &v1beta1.Ingress{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "rusty",
 				Namespace: namespace,
@@ -91,7 +94,7 @@ var _ = Describe("ResourceClient", func() {
 					},
 				},
 			},
-		})
+		}, metav1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		ingressResource, err := ingressClient.Read(kubeIng.Namespace, kubeIng.Name, clients.ReadOpts{})
 		Expect(err).NotTo(HaveOccurred())

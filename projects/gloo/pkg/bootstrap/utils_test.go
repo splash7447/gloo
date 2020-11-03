@@ -29,6 +29,13 @@ import (
 )
 
 var _ = Describe("Utils", func() {
+	var (
+		ctx context.Context
+	)
+
+	BeforeEach(func() {
+		ctx, _ = context.WithCancel(context.Background())
+	})
 
 	It("should set kube rate limts", func() {
 		var cfg *rest.Config
@@ -86,11 +93,11 @@ var _ = Describe("Utils", func() {
 
 			kube, err = kubernetes.NewForConfig(cfg)
 			Expect(err).NotTo(HaveOccurred())
-			_, err = kube.CoreV1().Namespaces().Create(&kubev1.Namespace{
+			_, err = kube.CoreV1().Namespaces().Create(ctx, &kubev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: namespace,
 				},
-			})
+			}, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			kubeCoreCache, err = corecache.NewKubeCoreCacheWithOptions(ctx, kube, time.Hour, []string{namespace})
 			Expect(err).NotTo(HaveOccurred())
@@ -108,12 +115,12 @@ var _ = Describe("Utils", func() {
 			)
 
 			BeforeEach(func() {
-				_, err := kube.CoreV1().ConfigMaps(namespace).Create(
+				_, err := kube.CoreV1().ConfigMaps(namespace).Create(ctx,
 					&kubev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "cfg"},
 						Data: map[string]string{
 							"test": "data",
 						},
-					})
+					}, metav1.CreateOptions{})
 				Expect(err).NotTo(HaveOccurred())
 
 				settings := &v1.Settings{
@@ -130,7 +137,7 @@ var _ = Describe("Utils", func() {
 					&api.Client{},
 					"artifacts")
 				Expect(err).NotTo(HaveOccurred())
-				artifactClient, err = v1.NewArtifactClient(factory)
+				artifactClient, err = v1.NewArtifactClient(ctx, factory)
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -223,7 +230,7 @@ var _ = Describe("Utils", func() {
 					client,
 					"artifacts")
 				Expect(err).NotTo(HaveOccurred())
-				artifactClient, err = v1.NewArtifactClient(factory)
+				artifactClient, err = v1.NewArtifactClient(ctx, factory)
 				Expect(err).NotTo(HaveOccurred())
 			})
 

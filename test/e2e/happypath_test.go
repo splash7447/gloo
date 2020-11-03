@@ -385,14 +385,14 @@ var _ = Describe("Happy path", func() {
 				namespace = "gloo-e2e-" + helpers.RandString(8)
 			}
 
-			_, err := kubeClient.CoreV1().Namespaces().Create(&kubev1.Namespace{
+			_, err := kubeClient.CoreV1().Namespaces().Create(ctx, &kubev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: namespace,
 				},
-			})
+			}, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 
-			svc, err = kubeClient.CoreV1().Services(namespace).Create(&kubev1.Service{
+			svc, err = kubeClient.CoreV1().Services(namespace).Create(ctx, &kubev1.Service{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
 					Name:      "headlessservice",
@@ -405,10 +405,10 @@ var _ = Describe("Happy path", func() {
 						},
 					},
 				},
-			})
+			}, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 
-			_, err = kubeClient.CoreV1().Endpoints(namespace).Create(&kubev1.Endpoints{
+			_, err = kubeClient.CoreV1().Endpoints(namespace).Create(ctx, &kubev1.Endpoints{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
 					Name:      svc.Name,
@@ -422,7 +422,7 @@ var _ = Describe("Happy path", func() {
 						Port: int32(tu.Port),
 					}},
 				}},
-			})
+			}, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 
@@ -643,7 +643,7 @@ func getIpThatsNotLocalhost(instance *services.EnvoyInstance) string {
 				}},
 			}
 
-			errs := validation.ValidateEndpoints(endpoints)
+			errs := validation.ValidateEndpoints(endpoints, false) //todo should this be true or false?
 			if len(errs) != 0 {
 				continue
 			}
