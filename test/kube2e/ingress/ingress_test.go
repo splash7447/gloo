@@ -1,6 +1,7 @@
 package ingress_test
 
 import (
+	"context"
 	"time"
 
 	"github.com/solo-io/go-utils/testutils/helper"
@@ -17,6 +18,14 @@ import (
 
 var _ = Describe("Kube2e: Ingress", func() {
 
+	var (
+		ctx context.Context
+	)
+
+	BeforeEach(func() {
+		ctx, _ = context.WithCancel(context.Background())
+	})
+
 	It("works", func() {
 		cfg, err := kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
@@ -31,7 +40,7 @@ var _ = Describe("Kube2e: Ingress", func() {
 				IntVal: helper.TestRunnerPort,
 			},
 		}
-		kubeIng, err := kubeIngressClient.Create(&v1beta1.Ingress{
+		kubeIng, err := kubeIngressClient.Create(ctx, &v1beta1.Ingress{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:        "simple-ingress-route",
 				Namespace:   testHelper.InstallNamespace,
@@ -53,7 +62,7 @@ var _ = Describe("Kube2e: Ingress", func() {
 					},
 				},
 			},
-		})
+		}, metav1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(kubeIng).NotTo(BeNil())
 
