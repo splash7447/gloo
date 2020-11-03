@@ -484,7 +484,7 @@ var _ = Describe("Kube2e: gateway", func() {
 				}, time.Second*10).Should(And(HaveOccurred(), MatchError(ContainSubstring("could not render proxy"))))
 
 				// disable strict validation
-				kube2e.UpdateAlwaysAcceptSetting(true, testHelper.InstallNamespace)
+				kube2e.UpdateAlwaysAcceptSetting(ctx, true, testHelper.InstallNamespace)
 
 				Eventually(func() error {
 					_, err := virtualServiceClient.Write(inValid, clients.WriteOpts{})
@@ -501,7 +501,7 @@ var _ = Describe("Kube2e: gateway", func() {
 				// important that we update the always accept setting after removing resources, or else we can have:
 				// "validation is disabled due to an invalid resource which has been written to storage.
 				// Please correct any Rejected resources to re-enable validation."
-				kube2e.UpdateAlwaysAcceptSetting(false, testHelper.InstallNamespace)
+				kube2e.UpdateAlwaysAcceptSetting(ctx, false, testHelper.InstallNamespace)
 			})
 			It("propagates the valid virtual services to envoy", func() {
 				testHelper.CurlEventuallyShouldRespond(helper.CurlOpts{
@@ -661,7 +661,7 @@ var _ = Describe("Kube2e: gateway", func() {
 					Expect(settings.Gloo).NotTo(BeNil())
 					Expect(settings.Gloo.InvalidConfigPolicy).NotTo(BeNil())
 					settings.Gloo.InvalidConfigPolicy.ReplaceInvalidRoutes = true
-				}, testHelper.InstallNamespace)
+				}, ctx, testHelper.InstallNamespace)
 
 				vs = withRoute(&gatewayv1.Route{
 					Matchers: []*matchers.Matcher{{PathSpecifier: &matchers.Matcher_Prefix{Prefix: "/invalid-route"}}},

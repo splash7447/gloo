@@ -1,6 +1,7 @@
 package ratelimit_test
 
 import (
+	"context"
 	"io"
 
 	. "github.com/onsi/ginkgo"
@@ -19,11 +20,12 @@ var _ = Describe("CustomEnvoyConfig", func() {
 	var (
 		vsvc     *gatewayv1.VirtualService
 		vsClient gatewayv1.VirtualServiceClient
+		ctx      context.Context
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
 		// create a settings object
-		vsClient = helpers.MustVirtualServiceClient()
+		vsClient = helpers.MustVirtualServiceClient(ctx)
 		vsvc = &gatewayv1.VirtualService{
 			Metadata: core.Metadata{
 				Name:      "vs",

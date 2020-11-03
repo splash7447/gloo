@@ -1,6 +1,8 @@
 package add_test
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -15,9 +17,13 @@ import (
 
 var _ = Describe("Routes interactive", func() {
 
+	var (
+		ctx context.Context
+	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ugclient := helpers.MustUpstreamGroupClient()
+		ctx, _ = context.WithCancel(context.Background())
+		ugclient := helpers.MustUpstreamGroupClient(ctx)
 		ugclient.Write(&gloov1.UpstreamGroup{
 			Metadata: core.Metadata{
 				Name:      "default",
@@ -62,7 +68,7 @@ var _ = Describe("Routes interactive", func() {
 			err := testutils.Glooctl("add route -i")
 			Expect(err).NotTo(HaveOccurred())
 
-			vs, err := helpers.MustVirtualServiceClient().Read("gloo-system", "default", clients.ReadOpts{})
+			vs, err := helpers.MustVirtualServiceClient(ctx).Read("gloo-system", "default", clients.ReadOpts{})
 			ug := vs.VirtualHost.Routes[0].GetRouteAction().GetUpstreamGroup()
 			Expect(ug.GetName()).To(Equal("default"))
 			Expect(ug.GetNamespace()).To(Equal("default"))

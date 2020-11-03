@@ -1,6 +1,7 @@
 package ratelimit_test
 
 import (
+	"context"
 	"io"
 
 	rltypes "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
@@ -21,11 +22,13 @@ var _ = Describe("CustomServerConfig", func() {
 	var (
 		settings       *gloov1.Settings
 		settingsClient gloov1.SettingsClient
+		ctx            context.Context
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
+		ctx, _ = context.WithCancel(context.Background())
 		// create a settings object
-		settingsClient = helpers.MustSettingsClient()
+		settingsClient = helpers.MustSettingsClient(ctx)
 
 		settings = &gloov1.Settings{
 			Metadata: core.Metadata{

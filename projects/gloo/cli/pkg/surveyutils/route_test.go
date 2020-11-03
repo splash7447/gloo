@@ -1,6 +1,8 @@
 package surveyutils_test
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/solo-io/gloo/projects/gloo/pkg/api/v1/core/matchers"
@@ -18,11 +20,15 @@ import (
 )
 
 var _ = Describe("Route", func() {
+	var (
+		ctx context.Context
+	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
+		ctx, _ = context.WithCancel(context.Background())
 
-		vsClient := helpers.MustVirtualServiceClient()
+		vsClient := helpers.MustVirtualServiceClient(ctx)
 		vs := &gatewayv1.VirtualService{
 			Metadata: core.Metadata{
 				Name:      "vs",
@@ -42,7 +48,7 @@ var _ = Describe("Route", func() {
 		_, err := vsClient.Write(vs, clients.WriteOpts{})
 		Expect(err).NotTo(HaveOccurred())
 
-		usClient := helpers.MustUpstreamClient()
+		usClient := helpers.MustUpstreamClient(ctx)
 		us := &v1.Upstream{
 			Metadata: core.Metadata{
 				Name:      "gloo-system.some-ns-test-svc-1234",

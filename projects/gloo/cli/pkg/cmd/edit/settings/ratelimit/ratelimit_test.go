@@ -1,6 +1,7 @@
 package ratelimit_test
 
 import (
+	"context"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -22,11 +23,13 @@ var _ = Describe("RateLimit", func() {
 		settings       *gloov1.Settings
 		rlSettings     ratelimitpb.Settings
 		settingsClient gloov1.SettingsClient
+		ctx            context.Context
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
+		ctx, _ = context.WithCancel(context.Background())
 		// create a settings object
-		settingsClient = helpers.MustSettingsClient()
+		settingsClient = helpers.MustSettingsClient(ctx)
 
 		settings = &gloov1.Settings{
 			Metadata: core.Metadata{
@@ -91,7 +94,7 @@ var _ = Describe("RateLimit", func() {
 	Context("Interactive tests", func() {
 
 		BeforeEach(func() {
-			upstreamClient := helpers.MustUpstreamClient()
+			upstreamClient := helpers.MustUpstreamClient(ctx)
 			upstream := &gloov1.Upstream{
 				Metadata: core.Metadata{
 					Name:      "test",

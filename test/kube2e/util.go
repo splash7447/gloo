@@ -141,16 +141,16 @@ func getSnapOut(metricsPort string) string {
 }
 
 // enable/disable strict validation
-func UpdateAlwaysAcceptSetting(alwaysAccept bool, installNamespace string) {
+func UpdateAlwaysAcceptSetting(ctx context.Context, alwaysAccept bool, installNamespace string) {
 	UpdateSettings(func(settings *v1.Settings) {
 		Expect(settings.Gateway).NotTo(BeNil())
 		Expect(settings.Gateway.Validation).NotTo(BeNil())
 		settings.Gateway.Validation.AlwaysAccept = &types.BoolValue{Value: alwaysAccept}
-	}, installNamespace)
+	}, ctx, installNamespace)
 }
 
-func UpdateSettings(f func(settings *v1.Settings), installNamespace string) {
-	settingsClient := clienthelpers.MustSettingsClient()
+func UpdateSettings(f func(settings *v1.Settings), ctx context.Context, installNamespace string) {
+	settingsClient := clienthelpers.MustSettingsClient(ctx)
 	settings, err := settingsClient.Read(installNamespace, "default", clients.ReadOpts{})
 	Expect(err).NotTo(HaveOccurred())
 
