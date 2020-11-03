@@ -151,7 +151,7 @@ func getSecretClient(ctx context.Context) v1.SecretClient {
 	settings := &v1.Settings{}
 	secretFactory, err := bootstrap.SecretFactoryForSettings(ctx, settings, mc, &config, nil, &kubeCoreCache, nil, v1.SecretCrd.Plural)
 	Expect(err).NotTo(HaveOccurred())
-	secretClient, err := v1.NewSecretClient(secretFactory)
+	secretClient, err := v1.NewSecretClient(ctx, secretFactory)
 	Expect(err).NotTo(HaveOccurred())
 	return secretClient
 

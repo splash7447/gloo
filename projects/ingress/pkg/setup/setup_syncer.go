@@ -166,7 +166,7 @@ func RunIngress(opts Opts) error {
 		return errors.Wrapf(err, "getting kube config")
 	}
 
-	proxyClient, err := gloov1.NewProxyClient(opts.Proxies)
+	proxyClient, err := gloov1.NewProxyClient(opts.WatchOpts.Ctx, opts.Proxies)
 	if err != nil {
 		return err
 	}
@@ -181,7 +181,7 @@ func RunIngress(opts Opts) error {
 			return errors.Wrapf(err, "getting kube client")
 		}
 
-		upstreamClient, err := gloov1.NewUpstreamClient(opts.Upstreams)
+		upstreamClient, err := gloov1.NewUpstreamClient(opts.WatchOpts.Ctx, opts.Upstreams)
 		if err != nil {
 			return err
 		}

@@ -35,6 +35,7 @@ var _ = Describe("Generated Kube Code", func() {
 
 		upstreamClient       gloov1.UpstreamClient
 		virtualServiceClient gatewayv1.VirtualServiceClient
+		ctx                  context.Context
 	)
 
 	BeforeEach(func() {
@@ -42,6 +43,7 @@ var _ = Describe("Generated Kube Code", func() {
 			Skip("This test creates kubernetes resources and is disabled by default. To enable, set RUN_KUBE_TESTS=1 in your env.")
 		}
 
+		ctx, _ = context.WithCancel(context.Background())
 		cfg, err := kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -49,10 +51,10 @@ var _ = Describe("Generated Kube Code", func() {
 		apiExts, err = apiext.NewForConfig(cfg)
 		Expect(err).NotTo(HaveOccurred())
 
-		err = gloov1.UpstreamCrd.Register(apiExts)
+		err = gloov1.UpstreamCrd.Register(ctx, apiExts)
 		Expect(err).NotTo(HaveOccurred())
 
-		err = gatewayv1.VirtualServiceCrd.Register(apiExts)
+		err = gatewayv1.VirtualServiceCrd.Register(ctx, apiExts)
 		Expect(err).NotTo(HaveOccurred())
 
 		glooV1Client, err = gloov1kube.NewForConfig(cfg)
@@ -66,7 +68,7 @@ var _ = Describe("Generated Kube Code", func() {
 
 		kubeCache := kube.NewKubeCache(context.TODO())
 
-		upstreamClient, err = gloov1.NewUpstreamClient(&factory.KubeResourceClientFactory{
+		upstreamClient, err = gloov1.NewUpstreamClient(ctx, &factory.KubeResourceClientFactory{
 			Crd:             gloov1.UpstreamCrd,
 			Cfg:             cfg,
 			SharedCache:     kubeCache,
@@ -74,7 +76,7 @@ var _ = Describe("Generated Kube Code", func() {
 		})
 		Expect(err).NotTo(HaveOccurred())
 
-		virtualServiceClient, err = gatewayv1.NewVirtualServiceClient(&factory.KubeResourceClientFactory{
+		virtualServiceClient, err = gatewayv1.NewVirtualServiceClient(ctx, &factory.KubeResourceClientFactory{
 			Crd:             gatewayv1.VirtualServiceCrd,
 			Cfg:             cfg,
 			SharedCache:     kubeCache,
@@ -86,8 +88,8 @@ var _ = Describe("Generated Kube Code", func() {
 		if os.Getenv("RUN_KUBE_TESTS") != "1" {
 			return
 		}
-		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(gloov1.UpstreamCrd.FullName(), nil)
-		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(gatewayv1.VirtualServiceCrd.FullName(), nil)
+		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(ctx, gloov1.UpstreamCrd.FullName(), v1.DeleteOptions{})
+		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(ctx, gatewayv1.VirtualServiceCrd.FullName(), v1.DeleteOptions{})
 	})
 
 	It("can read and write a gloo resource as a typed kube object", func() {
