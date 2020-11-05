@@ -30,6 +30,7 @@ var _ = Describe("TranslatorSyncer", func() {
 		clusterIngress := &v1alpha1.ClusterIngress{ClusterIngress: knative.ClusterIngress{
 			ObjectMeta: v12.ObjectMeta{Generation: 1},
 		}}
+		
 		knativeClient := &mockIngressesGetter{
 			ciClient: &mockCiClient{ci: toKube(clusterIngress)}}
 
@@ -49,12 +50,12 @@ var _ = Describe("TranslatorSyncer", func() {
 		err := syncer.propagateProxyStatus(context.TODO(), proxy, v1alpha1.ClusterIngressList{clusterIngress})
 		Expect(err).NotTo(HaveOccurred())
 
-		//var ci *v1alpha12.Ingress
-		_, err = knativeClient.ciClient.Get(ctx, clusterIngress.Name, v12.GetOptions{})
+		var ci *v1alpha12.Ingress
+		ci, err= knativeClient.ciClient.Get(ctx, clusterIngress.Name, v12.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		// todo figure out new versino of ci.Status.IsReady()
-		Expect(true).To(BeTrue())
+		Expect(ci.IsReady()).To(BeTrue())
 	})
 })
 
