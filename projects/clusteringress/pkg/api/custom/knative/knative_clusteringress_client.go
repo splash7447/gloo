@@ -5,8 +5,8 @@ import (
 
 	"github.com/solo-io/gloo/projects/clusteringress/api/external/knative"
 	v1alpha1 "github.com/solo-io/gloo/projects/clusteringress/pkg/api/external/knative"
-	knativev1alpha1 "knative.dev/serving/pkg/apis/networking/v1alpha1"
-	knativeclient "knative.dev/serving/pkg/client/clientset/versioned"
+	knativev1alpha1 "knative.dev/networking/pkg/apis/networking/v1alpha1"
+	knativeclient "knative.dev/networking/pkg/client/clientset/versioned"
 
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients"
 	"github.com/solo-io/solo-kit/pkg/api/v1/resources"

@@ -40,7 +40,7 @@ import (
 	"github.com/solo-io/solo-kit/pkg/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	knativeclientset "knative.dev/serving/pkg/client/clientset/versioned"
+	knativeclientset "knative.dev/networking/pkg/client/clientset/versioned"
 )
 
 var defaultClusterIngressProxyAddress = "clusteringress-proxy." + gloodefaults.GlooSystem + ".svc." + network.GetClusterDomainName()

@@ -19,8 +19,8 @@ import (
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	knativev1alpha1 "knative.dev/serving/pkg/apis/networking/v1alpha1"
-	v1alpha13 "knative.dev/serving/pkg/client/clientset/versioned/typed/networking/v1alpha1"
+	knativev1alpha1 "knative.dev/networking/pkg/apis/networking/v1alpha1"
+	v1alpha13 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
 )
 
 var _ = Describe("TranslatorSyncer", func() {

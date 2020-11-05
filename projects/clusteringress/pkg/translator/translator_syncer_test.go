@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	alpha1 "knative.dev/serving/pkg/client/clientset/versioned/typed/networking/v1alpha1"
+	alpha1 "knative.dev/networking/pkg/client/clientset/versioned/typed/networking/v1alpha1"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -18,7 +18,7 @@ import (
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	v1alpha12 "knative.dev/serving/pkg/apis/networking/v1alpha1"
+	v1alpha12 "knative.dev/networking/pkg/apis/networking/v1alpha1"
 )
 
 var _ = Describe("TranslatorSyncer", func() {

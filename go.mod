@@ -3,7 +3,6 @@ module github.com/solo-io/gloo
 go 1.14
 
 require (
-	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b
 	github.com/avast/retry-go v2.4.3+incompatible
@@ -26,7 +25,6 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.4.4
 	github.com/golang/protobuf v1.4.3
-	github.com/google/go-containerregistry v0.1.3 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/mux v1.7.4
@@ -93,8 +91,9 @@ require (
 	k8s.io/kubectl v0.18.6
 	k8s.io/kubernetes v1.18.6
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
+	knative.dev/networking v0.0.0-20201030173535-3480e1e8ff18
 	knative.dev/pkg v0.0.0-20201104085304-8224d1a794f2
-	knative.dev/serving v0.15.3
+	knative.dev/serving v0.18.2
 	sigs.k8s.io/controller-runtime v0.6.2
 	sigs.k8s.io/yaml v1.2.0
 )

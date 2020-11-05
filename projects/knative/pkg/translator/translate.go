@@ -10,8 +10,8 @@ import (
 
 	envoycore_sk "github.com/solo-io/solo-kit/pkg/api/external/envoy/api/v2/core"
 
+	"knative.dev/networking/pkg/apis/networking"
 	"knative.dev/pkg/network"
-	"knative.dev/serving/pkg/apis/networking"
 
 	"github.com/solo-io/gloo/projects/gloo/pkg/api/v1/core/matchers"
 	v1 "k8s.io/api/core/v1"
@@ -27,7 +27,7 @@ import (
 	"github.com/solo-io/gloo/projects/gloo/pkg/api/v1/options/retries"
 	"github.com/solo-io/go-utils/log"
 	"github.com/solo-io/solo-kit/pkg/api/v1/resources/core"
-	knativev1alpha1 "knative.dev/serving/pkg/apis/networking/v1alpha1"
+	knativev1alpha1 "knative.dev/networking/pkg/apis/networking/v1alpha1"
 )
 
 const (

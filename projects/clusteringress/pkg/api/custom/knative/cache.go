@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients/kube/controller"
-	knativeclient "knative.dev/serving/pkg/client/clientset/versioned"
+	knativeclient "knative.dev/networking/pkg/client/clientset/versioned"
+	knativelisters "knative.dev/networking/pkg/client/listers/networking/v1alpha1"
 	knativeinformers "knative.dev/serving/pkg/client/informers/externalversions"
-	knativelisters "knative.dev/serving/pkg/client/listers/networking/v1alpha1"
 )
 
 type Cache interface {
