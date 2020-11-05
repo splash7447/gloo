@@ -2,8 +2,9 @@ package setup
 
 import (
 	"context"
-	"github.com/solo-io/gloo/pkg/utils/usage"
 	"os"
+
+	"github.com/solo-io/gloo/pkg/utils/usage"
 
 	"github.com/solo-io/gloo/pkg/version"
 

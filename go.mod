@@ -3,7 +3,6 @@ module github.com/solo-io/gloo
 go 1.14
 
 require (
-	contrib.go.opencensus.io/exporter/stackdriver v0.13.4 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b
@@ -42,7 +41,6 @@ require (
 	github.com/k0kubun/pp v2.3.0+incompatible
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/keybase/go-ps v0.0.0-20190827175125-91aafc93ba19
-	github.com/mattbaird/jsonpatch v0.0.0-20200820163806-098863c1fc24 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/hashstructure v1.0.0
@@ -84,7 +82,6 @@ require (
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
 	google.golang.org/grpc v1.33.1
 	gopkg.in/AlecAivazis/survey.v1 v1.8.7
-	gopkg.in/src-d/go-billy.v4 v4.3.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	helm.sh/helm/v3 v3.2.4
 	k8s.io/api v0.18.8
@@ -96,8 +93,8 @@ require (
 	k8s.io/kubectl v0.18.6
 	k8s.io/kubernetes v1.18.6
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
-	knative.dev/pkg v0.0.0-20191107185656-884d50f09454
-	knative.dev/serving v0.10.0
+	knative.dev/pkg v0.0.0-20201104085304-8224d1a794f2
+	knative.dev/serving v0.15.3
 	sigs.k8s.io/controller-runtime v0.6.2
 	sigs.k8s.io/yaml v1.2.0
 )
