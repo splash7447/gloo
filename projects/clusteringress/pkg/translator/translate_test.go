@@ -59,8 +59,8 @@ var _ = Describe("Translate", func() {
 										},
 									},
 									AppendHeaders: map[string]string{"add": "me"},
-									Timeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
-									Retries: &v1alpha1.HTTPRetry{
+									DeprecatedTimeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
+									DeprecatedRetries: &v1alpha1.HTTPRetry{
 										Attempts:      14,
 										PerTryTimeout: &metav1.Duration{Duration: time.Microsecond},
 									},
@@ -87,8 +87,8 @@ var _ = Describe("Translate", func() {
 										},
 									},
 									AppendHeaders: map[string]string{"add": "me"},
-									Timeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
-									Retries: &v1alpha1.HTTPRetry{
+									DeprecatedTimeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
+									DeprecatedRetries: &v1alpha1.HTTPRetry{
 										Attempts:      14,
 										PerTryTimeout: &metav1.Duration{Duration: time.Microsecond},
 									},
@@ -131,8 +131,8 @@ var _ = Describe("Translate", func() {
 										},
 									},
 									AppendHeaders: map[string]string{"add": "me"},
-									Timeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
-									Retries: &v1alpha1.HTTPRetry{
+									DeprecatedTimeout:       &metav1.Duration{Duration: time.Nanosecond}, // good luck
+									DeprecatedRetries: &v1alpha1.HTTPRetry{
 										Attempts:      14,
 										PerTryTimeout: &metav1.Duration{Duration: time.Microsecond},
 									},
