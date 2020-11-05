@@ -29,7 +29,8 @@ func (p *Ingress) Clone() *Ingress {
 	return &newIng
 }
 
+//todo figure out what the new equivalent of this is
 func (p *Ingress) IsPublic() bool {
-	ing := v1alpha1.Ingress(*p)
-	return ing.IsPublic()
+	//ing := v1alpha1.Ingress(*p)
+	return true //return ing.IsPublic() no longer exist in the networking package?
 }
