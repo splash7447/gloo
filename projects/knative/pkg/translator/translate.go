@@ -132,12 +132,13 @@ func routingConfig(ctx context.Context, ingresses map[*core.Metadata]knativev1al
 
 		for _, tls := range spec.TLS {
 
-			if tls.ServerCertificate != "" && tls.ServerCertificate != v1.TLSCertKey {
+			// todo use non-peprecated solutions
+			if tls.DeprecatedServerCertificate != "" && tls.DeprecatedServerCertificate != v1.TLSCertKey {
 				contextutils.LoggerFrom(ctx).Warn("Custom ServerCertificate filenames are not currently supported by Gloo")
 				continue
 			}
 
-			if tls.PrivateKey != "" && tls.PrivateKey != v1.TLSPrivateKeyKey {
+			if tls.DeprecatedPrivateKey != "" && tls.DeprecatedPrivateKey != v1.TLSPrivateKeyKey {
 				contextutils.LoggerFrom(ctx).Warn("Custom PrivateKey filenames are not currently supported by Gloo")
 				continue
 			}
@@ -182,17 +183,17 @@ func routingConfig(ctx context.Context, ingresses map[*core.Metadata]knativev1al
 				}
 
 				var timeout *time.Duration
-				if route.Timeout != nil {
-					timeout = &route.Timeout.Duration
+				if route.DeprecatedTimeout != nil {
+					timeout = &route.DeprecatedTimeout.Duration
 				}
 				var retryPolicy *retries.RetryPolicy
-				if route.Retries != nil {
+				if route.DeprecatedRetries != nil {
 					var perTryTimeout *time.Duration
-					if route.Retries.PerTryTimeout != nil {
-						perTryTimeout = &route.Retries.PerTryTimeout.Duration
+					if route.DeprecatedRetries.PerTryTimeout != nil {
+						perTryTimeout = &route.DeprecatedRetries.PerTryTimeout.Duration
 					}
 					retryPolicy = &retries.RetryPolicy{
-						NumRetries:    uint32(route.Retries.Attempts),
+						NumRetries:    uint32(route.DeprecatedRetries.Attempts),
 						PerTryTimeout: perTryTimeout,
 					}
 				}
