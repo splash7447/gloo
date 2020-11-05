@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	v1machinery "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/solo-io/gloo/pkg/utils/syncutil"
 	"github.com/solo-io/go-utils/hashutils"
 	"go.uber.org/zap/zapcore"
@@ -135,12 +137,12 @@ func (s *translatorSyncer) markClusterIngressesReady(ctx context.Context, cluste
 		lb := []knativev1alpha1.LoadBalancerIngressStatus{
 			{DomainInternal: s.proxyAddress},
 		}
-		ci.Status.MarkLoadBalancerReady(lb, lb, lb)
+		ci.Status.MarkLoadBalancerReady(lb, lb)
 		ci.Status.ObservedGeneration = ci.Generation
 		updatedClusterIngresses = append(updatedClusterIngresses, &ci)
 	}
 	for _, ci := range updatedClusterIngresses {
-		if _, err := s.ingressClient.Ingresses(ci.Namespace).UpdateStatus(ci); err != nil {
+		if _, err := s.ingressClient.Ingresses(ci.Namespace).UpdateStatus(ctx, ci, v1machinery.UpdateOptions{}); err != nil {
 			contextutils.LoggerFrom(ctx).Errorf("failed to update ClusterIngress %v status with error %v", ci.Name, err)
 		}
 	}
