@@ -105,6 +105,6 @@ func (*mockCiClient) Watch(ctx context.Context, opts v12.ListOptions) (watch.Int
 	panic("implement me")
 }
 
-func (*mockCiClient) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha12.Ingress, err error) {
+func (*mockCiClient) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v12.PatchOptions, subresources ...string) (result *v1alpha12.Ingress, err error) {
 	panic("implement me")
 }
