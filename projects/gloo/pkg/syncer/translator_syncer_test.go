@@ -30,6 +30,7 @@ var _ = Describe("Translate Proxy", func() {
 		snap        *v1.ApiSnapshot
 		settings    *v1.Settings
 		proxyClient v1.ProxyClient
+		ctx         context.Context
 		proxyName   = "proxy-name"
 		ref         = "syncer-test"
 		ns          = "any-ns"
@@ -38,14 +39,15 @@ var _ = Describe("Translate Proxy", func() {
 	BeforeEach(func() {
 		xdsCache = &mockXdsCache{}
 		sanitizer = &mockXdsSanitizer{}
+		ctx, _ = context.WithCancel(context.Background())
 
 		resourceClientFactory := &factory.MemoryResourceClientFactory{
 			Cache: memory.NewInMemoryResourceCache(),
 		}
 
-		proxyClient, _ = v1.NewProxyClient(resourceClientFactory)
+		proxyClient, _ = v1.NewProxyClient(ctx, resourceClientFactory)
 
-		upstreamClient, err := resourceClientFactory.NewResourceClient(factory.NewResourceClientParams{ResourceType: &v1.Upstream{}})
+		upstreamClient, err := resourceClientFactory.NewResourceClient(ctx, factory.NewResourceClientParams{ResourceType: &v1.Upstream{}})
 		Expect(err).NotTo(HaveOccurred())
 
 		proxy := &v1.Proxy{

@@ -32,9 +32,11 @@ var _ = Describe("TranslatorSyncer", func() {
 		knativeClient        v1alpha13.IngressesGetter
 		ingress              *v1alpha1.Ingress
 		proxy                *v1.Proxy
+		ctx                  context.Context
 	)
 	BeforeEach(func() {
-		proxyClient, _ = v1.NewProxyClient(&factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
+		ctx, _ = context.WithCancel(context.Background())
+		proxyClient, _ = v1.NewProxyClient(ctx, &factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
 		ingress = &v1alpha1.Ingress{Ingress: knative.Ingress{ObjectMeta: v12.ObjectMeta{Generation: 1},
 			Spec: knativev1alpha1.IngressSpec{
 				Rules: []knativev1alpha1.IngressRule{{

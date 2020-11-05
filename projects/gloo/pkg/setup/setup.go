@@ -2,6 +2,7 @@ package setup
 
 import (
 	"context"
+	"github.com/solo-io/gloo/pkg/utils/usage"
 	"os"
 
 	"github.com/solo-io/gloo/pkg/version"
@@ -22,7 +23,7 @@ func Main(customCtx context.Context) error {
 	if err != nil {
 		contextutils.LoggerFrom(customCtx).Warnw("Could not create metrics storage loader - will not report usage: %s", zap.Error(err))
 	} else {
-		usageReporter = &usage.breakinDefaultUsageReader{MetricsStorage: metricsStorage}
+		usageReporter = &usage.DefaultUsageReader{MetricsStorage: metricsStorage}
 	}
 
 	return startSetupLoop(customCtx, usageReporter)

@@ -53,7 +53,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0-rc1
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pkg/browser v0.0.0-20180916011732-0a3d74bf9ce4
-	github.com/prometheus/client_golang v1.6.0
+	github.com/prometheus/client_golang v1.8.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/prometheus v2.5.0+incompatible
 	github.com/rotisserie/eris v0.4.0
@@ -72,23 +72,23 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
-	go.opencensus.io v0.22.4
-	go.uber.org/multierr v1.5.0
-	go.uber.org/zap v1.15.0
+	go.opencensus.io v0.22.5
+	go.uber.org/multierr v1.6.0
+	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/mod v0.3.0
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 	golang.org/x/tools v0.0.0-20200916195026-c9a70fc28ce3
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
-	google.golang.org/grpc v1.31.1
+	google.golang.org/grpc v1.33.1
 	gopkg.in/AlecAivazis/survey.v1 v1.8.7
 	gopkg.in/src-d/go-billy.v4 v4.3.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	helm.sh/helm/v3 v3.2.4
 	k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver v0.18.6
+	k8s.io/apiextensions-apiserver v0.18.8
 	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.8
@@ -117,7 +117,6 @@ replace (
 	//the following block of replacements are needed to have locked these packages to before versions they switched to using proto4
 	go.opencensus.io => go.opencensus.io v0.22.1
 	//github.com/lithammer/dedent => github.com/renstrom/dedent v1.0.0
-	//github.com/solo-io/solo-kit => /Users/milesholland/workRepos/solo-kit
 	// https://github.com/ory/dockertest/issues/208#issuecomment-686820414
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884

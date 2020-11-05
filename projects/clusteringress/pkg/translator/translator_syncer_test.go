@@ -23,9 +23,10 @@ import (
 
 var _ = Describe("TranslatorSyncer", func() {
 	It("propagates successful proxy status to the clusteringresses it was created from", func() {
+		ctx, _ := context.WithCancel(context.Background())
 		proxyAddress := "proxy-address"
 		namespace := "write-namespace"
-		proxyClient, _ := v1.NewProxyClient(&factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
+		proxyClient, _ := v1.NewProxyClient(ctx, &factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
 		clusterIngress := &v1alpha1.ClusterIngress{ClusterIngress: knative.ClusterIngress{
 			ObjectMeta: v12.ObjectMeta{Generation: 1},
 		}}

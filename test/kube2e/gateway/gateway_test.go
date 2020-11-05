@@ -696,7 +696,7 @@ var _ = Describe("Kube2e: gateway", func() {
 					Expect(settings.Gloo).NotTo(BeNil())
 					Expect(settings.Gloo.InvalidConfigPolicy).NotTo(BeNil())
 					settings.Gloo.InvalidConfigPolicy.ReplaceInvalidRoutes = false
-				}, testHelper.InstallNamespace)
+				}, ctx, testHelper.InstallNamespace)
 
 			})
 			It("serves a direct response for the invalid route response", func() {
