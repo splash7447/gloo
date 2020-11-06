@@ -31,7 +31,7 @@ import (
 
 type translatorSyncer struct {
 	writeNamespace     string
-	reporter           reporter.StatusReporter
+	reporter           reporter.Reporter
 	proxyWatcher       gloov1.ProxyWatcher
 	proxyReconciler    reconciler.ProxyReconciler
 	translator         translator.Translator
@@ -39,7 +39,7 @@ type translatorSyncer struct {
 	managedProxyLabels map[string]string
 }
 
-func NewTranslatorSyncer(ctx context.Context, writeNamespace string, proxyWatcher gloov1.ProxyWatcher, proxyReconciler reconciler.ProxyReconciler, reporter reporter.StatusReporter, translator translator.Translator) v1.ApiSyncer {
+func NewTranslatorSyncer(ctx context.Context, writeNamespace string, proxyWatcher gloov1.ProxyWatcher, proxyReconciler reconciler.ProxyReconciler, reporter reporter.Reporter, translator translator.Translator) v1.ApiSyncer {
 	t := &translatorSyncer{
 		writeNamespace:  writeNamespace,
 		reporter:        reporter,
@@ -125,14 +125,14 @@ type statusSyncer struct {
 	inputResourceLastStatus map[resources.InputResource]core.Status
 	currentGeneratedProxies []core.ResourceRef
 	mapLock                 sync.RWMutex
-	reporter                reporter.StatusReporter
+	reporter                reporter.Reporter
 
 	proxyWatcher   gloov1.ProxyWatcher
 	writeNamespace string
 	syncNeeded     chan struct{}
 }
 
-func newStatusSyncer(writeNamespace string, proxyWatcher gloov1.ProxyWatcher, reporter reporter.StatusReporter) statusSyncer {
+func newStatusSyncer(writeNamespace string, proxyWatcher gloov1.ProxyWatcher, reporter reporter.Reporter) statusSyncer {
 	return statusSyncer{
 		proxyToLastStatus:       map[core.ResourceRef]reportsAndStatus{},
 		currentGeneratedProxies: nil,
@@ -333,13 +333,14 @@ func (s *statusSyncer) syncStatus(ctx context.Context) error {
 		if status, ok := localInputResourceLastStatus[inputResource]; ok {
 			clonedInputResource.SetStatus(status)
 		}
+		// todo can we get away with removing the following:
 		if err := s.reporter.WriteReports(ctx, reports, currentStatuses); err != nil {
 			errs = multierror.Append(errs, err)
-		} else {
+		} /* else {
 			// cache the status written by the reporter
 			status := s.reporter.StatusFromReport(subresourceStatuses, currentStatuses)
 			localInputResourceLastStatus[inputResource] = status
-		}
+		} */
 	}
 	return errs
 }
