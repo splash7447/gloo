@@ -133,10 +133,10 @@ var _ = Describe("Generated Kube Code", func() {
 
 		// ensure we can write the with kube clients
 
-		_, err := glooV1Client.Upstreams(us.Namespace).Create(us)
+		_, err := glooV1Client.Upstreams(us.Namespace).Create(ctx, us, v1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
-		_, err = gatewayV1Client.VirtualServices(vs.Namespace).Create(vs)
+		_, err = gatewayV1Client.VirtualServices(vs.Namespace).Create(ctx, vs, v1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		// ensure we can read with the solo-kit clients
