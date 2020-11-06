@@ -1,6 +1,7 @@
 package knative_test
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -36,6 +37,7 @@ var testHelper *helper.SoloTestHelper
 var _ = BeforeSuite(func() {
 	cwd, err := os.Getwd()
 	Expect(err).NotTo(HaveOccurred())
+	ctx, _ := context.WithCancel(context.Background())
 
 	randomNumber := time.Now().Unix() % 10000
 	testHelper, err = helper.NewSoloTestHelper(func(defaults helper.TestConfig) helper.TestConfig {
@@ -50,7 +52,7 @@ var _ = BeforeSuite(func() {
 	testHelper.Verbose = true
 
 	// Install Gloo
-	err = testHelper.InstallGloo(helper.KNATIVE, 5*time.Minute)
+	err = testHelper.InstallGloo(ctx, helper.KNATIVE, 5*time.Minute)
 	Expect(err).NotTo(HaveOccurred())
 })
 
