@@ -418,49 +418,73 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 				select {
 				case <-ctx.Done():
 					return
-				case artifactList := <-artifactNamespacesChan:
+				case artifactList, ok := <-artifactNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case artifactChan <- artifactListWithNamespace{list: artifactList, namespace: namespace}:
 					}
-				case endpointList := <-endpointNamespacesChan:
+				case endpointList, ok := <-endpointNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case endpointChan <- endpointListWithNamespace{list: endpointList, namespace: namespace}:
 					}
-				case proxyList := <-proxyNamespacesChan:
+				case proxyList, ok := <-proxyNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case proxyChan <- proxyListWithNamespace{list: proxyList, namespace: namespace}:
 					}
-				case upstreamGroupList := <-upstreamGroupNamespacesChan:
+				case upstreamGroupList, ok := <-upstreamGroupNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case upstreamGroupChan <- upstreamGroupListWithNamespace{list: upstreamGroupList, namespace: namespace}:
 					}
-				case secretList := <-secretNamespacesChan:
+				case secretList, ok := <-secretNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case secretChan <- secretListWithNamespace{list: secretList, namespace: namespace}:
 					}
-				case upstreamList := <-upstreamNamespacesChan:
+				case upstreamList, ok := <-upstreamNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case upstreamChan <- upstreamListWithNamespace{list: upstreamList, namespace: namespace}:
 					}
-				case authConfigList := <-authConfigNamespacesChan:
+				case authConfigList, ok := <-authConfigNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case authConfigChan <- authConfigListWithNamespace{list: authConfigList, namespace: namespace}:
 					}
-				case rateLimitConfigList := <-rateLimitConfigNamespacesChan:
+				case rateLimitConfigList, ok := <-rateLimitConfigNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
@@ -528,19 +552,26 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 
 		for {
 			record := func() { stats.Record(ctx, mApiSnapshotIn.M(1)) }
+			defer func() {
+				close(snapshots)
+				// we must wait for done before closing the error chan,
+				// to avoid sending on close channel.
+				done.Wait()
+				close(errs)
+			}()
 
 			select {
 			case <-timer.C:
 				sync()
 			case <-ctx.Done():
-				close(snapshots)
-				done.Wait()
-				close(errs)
 				return
 			case <-c.forceEmit:
 				sentSnapshot := currentSnapshot.Clone()
 				snapshots <- &sentSnapshot
-			case artifactNamespacedList := <-artifactChan:
+			case artifactNamespacedList, ok := <-artifactChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := artifactNamespacedList.namespace
@@ -559,7 +590,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					artifactList = append(artifactList, artifacts...)
 				}
 				currentSnapshot.Artifacts = artifactList.Sort()
-			case endpointNamespacedList := <-endpointChan:
+			case endpointNamespacedList, ok := <-endpointChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := endpointNamespacedList.namespace
@@ -578,7 +612,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					endpointList = append(endpointList, endpoints...)
 				}
 				currentSnapshot.Endpoints = endpointList.Sort()
-			case proxyNamespacedList := <-proxyChan:
+			case proxyNamespacedList, ok := <-proxyChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := proxyNamespacedList.namespace
@@ -597,7 +634,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					proxyList = append(proxyList, proxies...)
 				}
 				currentSnapshot.Proxies = proxyList.Sort()
-			case upstreamGroupNamespacedList := <-upstreamGroupChan:
+			case upstreamGroupNamespacedList, ok := <-upstreamGroupChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := upstreamGroupNamespacedList.namespace
@@ -616,7 +656,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					upstreamGroupList = append(upstreamGroupList, upstreamGroups...)
 				}
 				currentSnapshot.UpstreamGroups = upstreamGroupList.Sort()
-			case secretNamespacedList := <-secretChan:
+			case secretNamespacedList, ok := <-secretChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := secretNamespacedList.namespace
@@ -635,7 +678,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					secretList = append(secretList, secrets...)
 				}
 				currentSnapshot.Secrets = secretList.Sort()
-			case upstreamNamespacedList := <-upstreamChan:
+			case upstreamNamespacedList, ok := <-upstreamChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := upstreamNamespacedList.namespace
@@ -654,7 +700,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					upstreamList = append(upstreamList, upstreams...)
 				}
 				currentSnapshot.Upstreams = upstreamList.Sort()
-			case authConfigNamespacedList := <-authConfigChan:
+			case authConfigNamespacedList, ok := <-authConfigChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := authConfigNamespacedList.namespace
@@ -673,7 +722,10 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 					authConfigList = append(authConfigList, authConfigs...)
 				}
 				currentSnapshot.AuthConfigs = authConfigList.Sort()
-			case rateLimitConfigNamespacedList := <-rateLimitConfigChan:
+			case rateLimitConfigNamespacedList, ok := <-rateLimitConfigChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := rateLimitConfigNamespacedList.namespace

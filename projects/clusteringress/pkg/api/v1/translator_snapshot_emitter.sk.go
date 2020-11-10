@@ -165,7 +165,10 @@ func (c *translatorEmitter) Snapshots(watchNamespaces []string, opts clients.Wat
 				select {
 				case <-ctx.Done():
 					return
-				case clusterIngressList := <-clusterIngressNamespacesChan:
+				case clusterIngressList, ok := <-clusterIngressNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
@@ -212,19 +215,26 @@ func (c *translatorEmitter) Snapshots(watchNamespaces []string, opts clients.Wat
 
 		for {
 			record := func() { stats.Record(ctx, mTranslatorSnapshotIn.M(1)) }
+			defer func() {
+				close(snapshots)
+				// we must wait for done before closing the error chan,
+				// to avoid sending on close channel.
+				done.Wait()
+				close(errs)
+			}()
 
 			select {
 			case <-timer.C:
 				sync()
 			case <-ctx.Done():
-				close(snapshots)
-				done.Wait()
-				close(errs)
 				return
 			case <-c.forceEmit:
 				sentSnapshot := currentSnapshot.Clone()
 				snapshots <- &sentSnapshot
-			case clusterIngressNamespacedList := <-clusterIngressChan:
+			case clusterIngressNamespacedList, ok := <-clusterIngressChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := clusterIngressNamespacedList.namespace

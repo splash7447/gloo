@@ -163,7 +163,10 @@ func (c *edsEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 				select {
 				case <-ctx.Done():
 					return
-				case upstreamList := <-upstreamNamespacesChan:
+				case upstreamList, ok := <-upstreamNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
@@ -210,19 +213,26 @@ func (c *edsEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 
 		for {
 			record := func() { stats.Record(ctx, mEdsSnapshotIn.M(1)) }
+			defer func() {
+				close(snapshots)
+				// we must wait for done before closing the error chan,
+				// to avoid sending on close channel.
+				done.Wait()
+				close(errs)
+			}()
 
 			select {
 			case <-timer.C:
 				sync()
 			case <-ctx.Done():
-				close(snapshots)
-				done.Wait()
-				close(errs)
 				return
 			case <-c.forceEmit:
 				sentSnapshot := currentSnapshot.Clone()
 				snapshots <- &sentSnapshot
-			case upstreamNamespacedList := <-upstreamChan:
+			case upstreamNamespacedList, ok := <-upstreamChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := upstreamNamespacedList.namespace

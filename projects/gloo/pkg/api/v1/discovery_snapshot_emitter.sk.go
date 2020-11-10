@@ -212,13 +212,19 @@ func (c *discoveryEmitter) Snapshots(watchNamespaces []string, opts clients.Watc
 				select {
 				case <-ctx.Done():
 					return
-				case upstreamList := <-upstreamNamespacesChan:
+				case upstreamList, ok := <-upstreamNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
 					case upstreamChan <- upstreamListWithNamespace{list: upstreamList, namespace: namespace}:
 					}
-				case secretList := <-secretNamespacesChan:
+				case secretList, ok := <-secretNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
@@ -283,19 +289,26 @@ func (c *discoveryEmitter) Snapshots(watchNamespaces []string, opts clients.Watc
 
 		for {
 			record := func() { stats.Record(ctx, mDiscoverySnapshotIn.M(1)) }
+			defer func() {
+				close(snapshots)
+				// we must wait for done before closing the error chan,
+				// to avoid sending on close channel.
+				done.Wait()
+				close(errs)
+			}()
 
 			select {
 			case <-timer.C:
 				sync()
 			case <-ctx.Done():
-				close(snapshots)
-				done.Wait()
-				close(errs)
 				return
 			case <-c.forceEmit:
 				sentSnapshot := currentSnapshot.Clone()
 				snapshots <- &sentSnapshot
-			case upstreamNamespacedList := <-upstreamChan:
+			case upstreamNamespacedList, ok := <-upstreamChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := upstreamNamespacedList.namespace
@@ -314,7 +327,10 @@ func (c *discoveryEmitter) Snapshots(watchNamespaces []string, opts clients.Watc
 					upstreamList = append(upstreamList, upstreams...)
 				}
 				currentSnapshot.Upstreams = upstreamList.Sort()
-			case kubeNamespaceList := <-kubeNamespaceChan:
+			case kubeNamespaceList, ok := <-kubeNamespaceChan:
+				if !ok {
+					return
+				}
 				record()
 
 				skstats.IncrementResourceCount(
@@ -325,7 +341,10 @@ func (c *discoveryEmitter) Snapshots(watchNamespaces []string, opts clients.Watc
 				)
 
 				currentSnapshot.Kubenamespaces = kubeNamespaceList
-			case secretNamespacedList := <-secretChan:
+			case secretNamespacedList, ok := <-secretChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := secretNamespacedList.namespace

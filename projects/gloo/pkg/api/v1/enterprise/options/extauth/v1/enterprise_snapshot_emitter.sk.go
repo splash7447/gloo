@@ -163,7 +163,10 @@ func (c *enterpriseEmitter) Snapshots(watchNamespaces []string, opts clients.Wat
 				select {
 				case <-ctx.Done():
 					return
-				case authConfigList := <-authConfigNamespacesChan:
+				case authConfigList, ok := <-authConfigNamespacesChan:
+					if !ok {
+						return
+					}
 					select {
 					case <-ctx.Done():
 						return
@@ -210,19 +213,26 @@ func (c *enterpriseEmitter) Snapshots(watchNamespaces []string, opts clients.Wat
 
 		for {
 			record := func() { stats.Record(ctx, mEnterpriseSnapshotIn.M(1)) }
+			defer func() {
+				close(snapshots)
+				// we must wait for done before closing the error chan,
+				// to avoid sending on close channel.
+				done.Wait()
+				close(errs)
+			}()
 
 			select {
 			case <-timer.C:
 				sync()
 			case <-ctx.Done():
-				close(snapshots)
-				done.Wait()
-				close(errs)
 				return
 			case <-c.forceEmit:
 				sentSnapshot := currentSnapshot.Clone()
 				snapshots <- &sentSnapshot
-			case authConfigNamespacedList := <-authConfigChan:
+			case authConfigNamespacedList, ok := <-authConfigChan:
+				if !ok {
+					return
+				}
 				record()
 
 				namespace := authConfigNamespacedList.namespace
