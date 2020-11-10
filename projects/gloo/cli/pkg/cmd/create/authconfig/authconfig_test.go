@@ -1,6 +1,8 @@
 package authconfig_test
 
 import (
+	"context"
+
 	"github.com/solo-io/gloo/projects/gloo/cli/pkg/cmd/create/authconfig"
 
 	. "github.com/onsi/ginkgo"
@@ -16,12 +18,22 @@ import (
 )
 
 var _ = Describe("AuthConfig", func() {
+	var (
+		ctx    context.Context
+		cancel context.CancelFunc
+	)
+
 	BeforeEach(func() {
+		ctx, cancel = context.WithCancel(context.Background())
 		helpers.UseMemoryClients()
 	})
 
+	AfterEach(func() {
+		cancel()
+	})
+
 	getExtension := func() []*extauthpb.AuthConfig_Config {
-		ac, err := helpers.MustAuthConfigClient().Read("gloo-system", "ac1", clients.ReadOpts{})
+		ac, err := helpers.MustAuthConfigClient(ctx).Read("gloo-system", "ac1", clients.ReadOpts{})
 		Expect(err).NotTo(HaveOccurred())
 		return ac.Configs
 	}
@@ -214,7 +226,7 @@ var _ = Describe("AuthConfig", func() {
 			}, func() {
 				err := testutils.Glooctl("create ac -i")
 				Expect(err).NotTo(HaveOccurred())
-				_, err = helpers.MustAuthConfigClient().Read("gloo-system", "default", clients.ReadOpts{})
+				_, err = helpers.MustAuthConfigClient(ctx).Read("gloo-system", "default", clients.ReadOpts{})
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
