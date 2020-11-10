@@ -158,7 +158,7 @@ func CheckResources(opts *options.Options) error {
 			multiErr = multierror.Append(multiErr, err)
 		}
 	}
-	return multiErr
+	return multiErr.ErrorOrNil()
 }
 
 func getAndCheckDeployments(opts *options.Options) (*appsv1.DeploymentList, error) {
