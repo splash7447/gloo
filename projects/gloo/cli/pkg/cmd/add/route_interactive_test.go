@@ -18,11 +18,12 @@ import (
 var _ = Describe("Routes interactive", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		ugclient := helpers.MustUpstreamGroupClient(ctx)
 		ugclient.Write(&gloov1.UpstreamGroup{
 			Metadata: core.Metadata{
@@ -31,13 +32,17 @@ var _ = Describe("Routes interactive", func() {
 			},
 		}, clients.WriteOpts{})
 
-		upClient := helpers.MustUpstreamClient(nil)
+		upClient := helpers.MustUpstreamClient(ctx)
 		upClient.Write(&gloov1.Upstream{
 			Metadata: core.Metadata{
 				Name:      "up",
 				Namespace: "gloo-system",
 			},
 		}, clients.WriteOpts{})
+	})
+
+	AfterEach(func() {
+		cancel()
 	})
 
 	It("Create interactive route", func() {
