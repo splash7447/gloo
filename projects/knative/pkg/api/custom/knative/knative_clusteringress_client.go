@@ -1,6 +1,7 @@
 package knative
 
 import (
+	"context"
 	"sort"
 
 	"github.com/solo-io/gloo/projects/knative/api/external/knative"
@@ -147,7 +148,7 @@ func (rc *ResourceClient) Watch(namespace string, opts clients.WatchOpts) (<-cha
 	return resourcesChan, errs, nil
 }
 
-func (rc *ResourceClient) exist(namespace, name string) bool {
-	_, err := rc.knativeClient.NetworkingV1alpha1().Ingresses(namespace).Get(name, metav1.GetOptions{})
+func (rc *ResourceClient) exist(ctx context.Context, namespace, name string) bool {
+	_, err := rc.knativeClient.NetworkingV1alpha1().Ingresses(namespace).Get(ctx, name, metav1.GetOptions{})
 	return err == nil
 }

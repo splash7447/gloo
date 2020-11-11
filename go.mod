@@ -3,24 +3,29 @@ module github.com/solo-io/gloo
 go 1.14
 
 require (
+	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b
 	github.com/avast/retry-go v2.4.3+incompatible
 	github.com/aws/aws-sdk-go v1.34.9
 	github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354
+	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/cratonica/2goarray v0.0.0-20190331194516-514510793eaa
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/elazarl/goproxy v0.0.0-20190711103511-473e67f1d7d2 // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2 // indirect
 	github.com/envoyproxy/go-control-plane v0.9.6-0.20200529035633-fc42e08917e9
 	github.com/envoyproxy/protoc-gen-validate v0.4.0
+	github.com/fatih/color v1.9.0 // indirect
 	github.com/fgrosse/zaptest v1.1.0
+	github.com/frankban/quicktest v1.8.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-openapi/loads v0.19.4
 	github.com/go-openapi/spec v0.19.6
 	github.com/go-openapi/swag v0.19.7
 	github.com/go-swagger/go-swagger v0.21.0
+	github.com/go-test/deep v1.0.4 // indirect
 	github.com/gogo/googleapis v1.3.1
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.4.4
@@ -28,20 +33,26 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/mux v1.7.4
+	github.com/gregjones/httpcache v0.0.0-20190212212710-3befbb6ad0cc // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.0.1-0.20190118093823-f849b5445de4
 	github.com/hashicorp/consul/api v1.3.0
 	github.com/hashicorp/go-multierror v1.1.0
+	github.com/hashicorp/go-retryablehttp v0.6.6 // indirect
 	github.com/hashicorp/go-uuid v1.0.2-0.20191001231223-f32f5fe8d6a8
 	github.com/hashicorp/vault/api v1.0.5-0.20191108163347-bdd38fca2cff
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/jhump/protoreflect v1.5.0
+	github.com/jmoiron/sqlx v1.2.1-0.20190826204134-d7d95172beb5 // indirect
 	github.com/k0kubun/pp v2.3.0+incompatible
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/keybase/go-ps v0.0.0-20190827175125-91aafc93ba19
 	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-runewidth v0.0.8 // indirect
+	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/hashstructure v1.0.0
+	github.com/mitchellh/mapstructure v1.3.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/onsi/ginkgo v1.12.1
@@ -55,6 +66,7 @@ require (
 	github.com/rotisserie/eris v0.4.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/sirupsen/logrus v1.7.0 // indirect
+	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/solo-io/envoy-operator v0.1.4
 	github.com/solo-io/go-list-licenses v0.0.0-20191023220251-171e4740d00f
 	github.com/solo-io/go-utils v0.17.0
@@ -80,6 +92,8 @@ require (
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
 	google.golang.org/grpc v1.33.1
 	gopkg.in/AlecAivazis/survey.v1 v1.8.7
+	gopkg.in/ini.v1 v1.56.0 // indirect
+	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	helm.sh/helm/v3 v3.2.4
 	k8s.io/api v0.18.8
@@ -91,18 +105,21 @@ require (
 	k8s.io/kubectl v0.18.6
 	k8s.io/kubernetes v1.18.6
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
-	knative.dev/networking v0.0.0-20201030173535-3480e1e8ff18
+	knative.dev/networking v0.0.0-20201103163404-b9f80f4537af
 	knative.dev/pkg v0.0.0-20201104085304-8224d1a794f2
-	knative.dev/serving v0.18.2
+	knative.dev/serving v0.19.0
+	rsc.io/letsencrypt v0.0.3 // indirect
 	sigs.k8s.io/controller-runtime v0.6.2
 	sigs.k8s.io/yaml v1.2.0
+	vbom.ml/util v0.0.0-20180919145318-efcd4e0f9787 // indirect
 )
 
 replace (
+	//knative.dev/serving => knative.dev/serving v0.18.2
 	// github.com/Azure/go-autorest/autorest has different versions for the Go
 	// modules than it does for releases on the repository, so we need to manually
 	// Note the correct  version when updating.
-	github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.0.0+incompatible
+	//github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.0.0+incompatible
 	github.com/Sirupsen/logrus => github.com/sirupsen/logrus v1.4.2
 	github.com/census-instrumentation/opencensus-proto => github.com/census-instrumentation/opencensus-proto v0.2.0 // indirect
 	github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309
