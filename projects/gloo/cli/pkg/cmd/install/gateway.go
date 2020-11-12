@@ -28,7 +28,7 @@ func gatewayCmd(opts *options.Options) *cobra.Command {
 				Verbose:        opts.Top.Verbose,
 				Ctx:            opts.Top.Ctx,
 			}); err != nil {
-				return eris.Wrapf(err, "installing gloo in gateway mode")
+				return eris.Wrapf(err, "installing gloo edge in gateway mode")
 			}
 			return nil
 		},

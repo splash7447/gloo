@@ -35,7 +35,7 @@ func glooFedCmd(opts *options.Options) *cobra.Command {
 				Verbose:        opts.Top.Verbose,
 				Ctx:            opts.Top.Ctx,
 			}); err != nil {
-				return eris.Wrapf(err, "installing Gloo Federation")
+				return eris.Wrapf(err, "installing Gloo Edge Federation")
 			}
 
 			return nil
