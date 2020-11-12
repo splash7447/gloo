@@ -21,37 +21,44 @@ var _ = Describe("AuthConfig", func() {
 	var (
 		ctx    context.Context
 		cancel context.CancelFunc
+
+		getExtension    func() []*extauthpb.AuthConfig_Config
+		getOIDCConfig   func() *extauthpb.OAuth
+		getApiKeyConfig func() *extauthpb.ApiKeyAuth
+		getOpaConfig    func() *extauthpb.OpaAuth
+		get2ndOpaConfig func() *extauthpb.OpaAuth
 	)
 
 	BeforeEach(func() {
-		ctx, cancel = context.WithCancel(context.Background())
 		helpers.UseMemoryClients()
+		ctx, cancel = context.WithCancel(context.Background())
+
+		// since getExtension depends on the ctx, these functions must be regenerated everytime we regenerate the context.
+		getExtension = func() []*extauthpb.AuthConfig_Config {
+			ac, err := helpers.MustAuthConfigClient(ctx).Read("gloo-system", "ac1", clients.ReadOpts{})
+			Expect(err).NotTo(HaveOccurred())
+			return ac.Configs
+		}
+
+		getOIDCConfig = func() *extauthpb.OAuth {
+			return getExtension()[0].GetOauth()
+		}
+
+		getApiKeyConfig = func() *extauthpb.ApiKeyAuth {
+			return getExtension()[0].GetApiKeyAuth()
+		}
+		getOpaConfig = func() *extauthpb.OpaAuth {
+			return getExtension()[0].GetOpaAuth()
+		}
+
+		get2ndOpaConfig = func() *extauthpb.OpaAuth {
+			return getExtension()[1].GetOpaAuth()
+		}
 	})
 
 	AfterEach(func() {
 		cancel()
 	})
-
-	getExtension := func() []*extauthpb.AuthConfig_Config {
-		ac, err := helpers.MustAuthConfigClient(ctx).Read("gloo-system", "ac1", clients.ReadOpts{})
-		Expect(err).NotTo(HaveOccurred())
-		return ac.Configs
-	}
-
-	getOIDCConfig := func() *extauthpb.OAuth {
-		return getExtension()[0].GetOauth()
-	}
-
-	getApiKeyConfig := func() *extauthpb.ApiKeyAuth {
-		return getExtension()[0].GetApiKeyAuth()
-	}
-	getOpaConfig := func() *extauthpb.OpaAuth {
-		return getExtension()[0].GetOpaAuth()
-	}
-
-	get2ndOpaConfig := func() *extauthpb.OpaAuth {
-		return getExtension()[1].GetOpaAuth()
-	}
 
 	DescribeTable("should create oidc authconfig",
 		func(cmd string, expected extauthpb.OAuth) {
