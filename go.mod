@@ -3,6 +3,8 @@ module github.com/solo-io/gloo
 go 1.14
 
 require (
+	github.com/Azure/go-autorest/autorest v0.10.2 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.5 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b
@@ -12,6 +14,7 @@ require (
 	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/cratonica/2goarray v0.0.0-20190331194516-514510793eaa
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/docker/cli v0.0.0-20200210162036-a4bedce16568 // indirect
 	github.com/elazarl/goproxy v0.0.0-20190711103511-473e67f1d7d2 // indirect
 	github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2 // indirect
 	github.com/envoyproxy/go-control-plane v0.9.6-0.20200529035633-fc42e08917e9
@@ -51,6 +54,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
+	github.com/miekg/dns v1.1.29 // indirect
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/mitchellh/mapstructure v1.3.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1
@@ -101,13 +105,13 @@ require (
 	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.8
+	k8s.io/component-base v0.18.8 // indirect
 	k8s.io/helm v2.17.0+incompatible
 	k8s.io/kubectl v0.18.6
 	k8s.io/kubernetes v1.18.6
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73
 	knative.dev/networking v0.0.0-20201103163404-b9f80f4537af
 	knative.dev/pkg v0.0.0-20201104085304-8224d1a794f2
-	knative.dev/serving v0.19.0
 	rsc.io/letsencrypt v0.0.3 // indirect
 	sigs.k8s.io/controller-runtime v0.6.2
 	sigs.k8s.io/yaml v1.2.0
