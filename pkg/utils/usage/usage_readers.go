@@ -1,13 +1,11 @@
 package usage
 
 import (
-	"context"
-	"fmt"
+	"context
 	"os"
 	"strings"
 	"time"
 
-	"github.com/solo-io/gloo/projects/metrics/pkg/metricsservice"
 	"github.com/solo-io/reporting-client/pkg/client"
 )
 
@@ -20,52 +18,17 @@ const (
 	// report once per period
 	ReportingPeriod = time.Hour * 24
 
-	numEnvoys        = "numActiveEnvoys"
-	totalRequests    = "totalRequests"
-	totalConnections = "totalConnections"
-	args             = "args"
+	args = "args"
 )
 
 type DefaultUsageReader struct {
-	MetricsStorage metricsservice.StorageClient
 }
 
 var _ client.UsagePayloadReader = &DefaultUsageReader{}
 
-func (d *DefaultUsageReader) GetPayload(ctx context.Context) (map[string]string, error) {
-	usage, err := d.MetricsStorage.GetUsage(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	payload := map[string]string{}
-
-	if usage == nil || usage.EnvoyIdToUsage == nil {
-		return payload, nil
-	}
-
-	envoys := 0
-	requestsCount := float64(0)
-	connectionsCount := float64(0)
-
-	for _, envoyUsage := range usage.EnvoyIdToUsage {
-		if envoyUsage.Active {
-			envoys++
-			requestsCount += envoyUsage.EnvoyMetrics.HttpRequests
-			connectionsCount += envoyUsage.EnvoyMetrics.TcpConnections
-		}
-	}
-
-	payload[numEnvoys] = fmt.Sprintf("%d", envoys)
-
-	if requestsCount > 0 {
-		payload[totalRequests] = fmt.Sprintf("%.0f", requestsCount)
-	}
-	if connectionsCount > 0 {
-		payload[totalConnections] = fmt.Sprintf("%.0f", connectionsCount)
-	}
-
-	return payload, nil
+// todo, how that this version of GetPayload no longer requires a context, do we still need it in the interface function at all?
+func (d *DefaultUsageReader) GetPayload() (map[string]string, error) {
+	return map[string]string{}, nil
 }
 
 type CliUsageReader struct {
