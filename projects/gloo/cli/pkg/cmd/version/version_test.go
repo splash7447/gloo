@@ -30,14 +30,14 @@ var _ = Describe("version command", func() {
 	Context("getVersion", func() {
 		It("will error if an error occurs while getting the version", func() {
 			fakeErr := eris.New("test")
-			client.EXPECT().Get().Return(nil, fakeErr).Times(1)
+			client.EXPECT().Get(ctx).Return(nil, fakeErr).Times(1)
 			_, err := GetClientServerVersions(ctx, client)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(Equal(fakeErr))
 		})
 		It("can get the version", func() {
 			v := make([]*version.ServerVersion, 1)
-			client.EXPECT().Get().Return(v, nil).Times(1)
+			client.EXPECT().Get(ctx).Return(v, nil).Times(1)
 			vrs, err := GetClientServerVersions(ctx, client)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(v).To(Equal(vrs.Server))
@@ -188,7 +188,7 @@ Server: {"type":"Gateway","enterprise":true,"kubernetes":{"containers":[{"Tag":"
 						},
 					}
 					sv.Enterprise = test.enterprise
-					client.EXPECT().Get().Times(1).Return([]*version.ServerVersion{sv}, nil)
+					client.EXPECT().Get(nil).Times(1).Return([]*version.ServerVersion{sv}, nil)
 					err := printVersion(client, buf, opts)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(buf.String()).To(Equal(test.result))
@@ -200,7 +200,7 @@ Server: {"type":"Gateway","enterprise":true,"kubernetes":{"containers":[{"Tag":"
 							Output: test.outputType,
 						},
 					}
-					client.EXPECT().Get().Times(1).Return(nil, eris.Errorf("fake rbac error"))
+					client.EXPECT().Get(nil).Times(1).Return(nil, eris.Errorf("fake rbac error"))
 					err := printVersion(client, buf, opts)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(buf.String()).To(ContainSubstring(undefinedServer))
