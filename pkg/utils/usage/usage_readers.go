@@ -1,7 +1,7 @@
 package usage
 
 import (
-	"context
+	"context"
 	"os"
 	"strings"
 	"time"
@@ -27,7 +27,7 @@ type DefaultUsageReader struct {
 var _ client.UsagePayloadReader = &DefaultUsageReader{}
 
 // todo, how that this version of GetPayload no longer requires a context, do we still need it in the interface function at all?
-func (d *DefaultUsageReader) GetPayload() (map[string]string, error) {
+func (d *DefaultUsageReader) GetPayload(ctx context.Context) (map[string]string, error) {
 	return map[string]string{}, nil
 }
 
