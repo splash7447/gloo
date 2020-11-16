@@ -69,7 +69,7 @@ var globalRegistry = func(opts bootstrap.Opts, pluginExtensions ...func() plugin
 		linkerd.NewPlugin(),
 		stats.NewPlugin(),
 		//todo is this the correct context to get, or should I get the one from the validation server?
-		ec2.NewPlugin(opts.ControlPlane.Ctx, opts.Secrets),
+		ec2.NewPlugin(opts.WatchOpts.Ctx, opts.Secrets),
 		tracing.NewPlugin(),
 		shadowing.NewPlugin(),
 		headers.NewPlugin(),
