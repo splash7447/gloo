@@ -29,13 +29,6 @@ import (
 )
 
 var _ = Describe("Utils", func() {
-	var (
-		ctx context.Context
-	)
-
-	BeforeEach(func() {
-		ctx, _ = context.WithCancel(context.Background())
-	})
 
 	It("should set kube rate limts", func() {
 		var cfg *rest.Config
