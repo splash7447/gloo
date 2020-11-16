@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"context"
-
 	"github.com/hashicorp/consul/api"
 	api2 "github.com/hashicorp/vault/api"
 	. "github.com/onsi/ginkgo"
@@ -16,11 +15,16 @@ import (
 var _ = Describe("Clients", func() {
 	var (
 		ctx context.Context
+		cancel context.CancelFunc
 	)
 	BeforeEach(func() {
-		UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() {
+		cancel()
+	})
+
 	Describe("UseMemoryClients", func() {
 		BeforeEach(func() {
 			UseMemoryClients()
@@ -83,7 +87,8 @@ var _ = Describe("Clients", func() {
 			for _, client := range []BaseClientGetter{
 				MustSecretClient(ctx),
 			} {
-				Expect(client.BaseClient()).To(BeAssignableToTypeOf(&vault.ResourceClient{}))
+				baseClient := client.BaseClient()
+				Expect(baseClient).To(BeAssignableToTypeOf(&vault.ResourceClient{}))
 			}
 		})
 	})
