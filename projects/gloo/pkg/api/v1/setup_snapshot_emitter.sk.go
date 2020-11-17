@@ -210,16 +210,15 @@ func (c *setupEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpt
 			}
 		}
 		settingsByNamespace := make(map[string]SettingsList)
-
+		defer func() {
+			close(snapshots)
+			// we must wait for done before closing the error chan,
+			// to avoid sending on close channel.
+			done.Wait()
+			close(errs)
+		}()
 		for {
 			record := func() { stats.Record(ctx, mSetupSnapshotIn.M(1)) }
-			defer func() {
-				close(snapshots)
-				// we must wait for done before closing the error chan,
-				// to avoid sending on close channel.
-				done.Wait()
-				close(errs)
-			}()
 
 			select {
 			case <-timer.C:

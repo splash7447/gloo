@@ -306,16 +306,15 @@ func (c *apiEmitter) Snapshots(watchNamespaces []string, opts clients.WatchOpts)
 		virtualServicesByNamespace := make(map[string]VirtualServiceList)
 		routeTablesByNamespace := make(map[string]RouteTableList)
 		gatewaysByNamespace := make(map[string]GatewayList)
-
+		defer func() {
+			close(snapshots)
+			// we must wait for done before closing the error chan,
+			// to avoid sending on close channel.
+			done.Wait()
+			close(errs)
+		}()
 		for {
 			record := func() { stats.Record(ctx, mApiSnapshotIn.M(1)) }
-			defer func() {
-				close(snapshots)
-				// we must wait for done before closing the error chan,
-				// to avoid sending on close channel.
-				done.Wait()
-				close(errs)
-			}()
 
 			select {
 			case <-timer.C:

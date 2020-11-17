@@ -308,16 +308,15 @@ func (c *translatorEmitter) Snapshots(watchNamespaces []string, opts clients.Wat
 		upstreamsByNamespace := make(map[string]gloo_solo_io.UpstreamList)
 		servicesByNamespace := make(map[string]KubeServiceList)
 		ingressesByNamespace := make(map[string]IngressList)
-
+		defer func() {
+			close(snapshots)
+			// we must wait for done before closing the error chan,
+			// to avoid sending on close channel.
+			done.Wait()
+			close(errs)
+		}()
 		for {
 			record := func() { stats.Record(ctx, mTranslatorSnapshotIn.M(1)) }
-			defer func() {
-				close(snapshots)
-				// we must wait for done before closing the error chan,
-				// to avoid sending on close channel.
-				done.Wait()
-				close(errs)
-			}()
 
 			select {
 			case <-timer.C:
