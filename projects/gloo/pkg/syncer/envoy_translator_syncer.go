@@ -66,7 +66,7 @@ func measureResource(ctx context.Context, resource string, len int) {
 	}
 }
 
-func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) error {
+func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) (reporter.ResourceReports, error) {
 	ctx, span := trace.StartSpan(ctx, "gloo.syncer.Sync")
 	defer span.End()
 
@@ -105,7 +105,7 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 		for key, valid := range allKeys {
 			if !valid {
 				if err := s.xdsCache.SetSnapshot(key, emptySnapshot); err != nil {
-					return err
+					return allReports, err
 				}
 			}
 		}
@@ -126,7 +126,7 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 		if err != nil {
 			err := eris.Wrapf(err, "translation loop failed")
 			logger.DPanicw("", zap.Error(err))
-			return err
+			return allReports, err
 		}
 
 		if validateErr := reports.ValidateStrict(); validateErr != nil {
@@ -156,7 +156,7 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 		if err := s.xdsCache.SetSnapshot(key, sanitizedSnapshot); err != nil {
 			err := eris.Wrapf(err, "failed while updating xDS snapshot cache")
 			logger.DPanicw("", zap.Error(err))
-			return err
+			return allReports, err
 		}
 
 		// Record some metrics
@@ -181,11 +181,7 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 
 	logger.Debugf("gloo reports to be written: %v", allReports)
 
-	if err := s.reporter.WriteReports(ctx, allReports, nil); err != nil {
-		logger.Debugf("Failed writing report for proxies: %v", err)
-		return eris.Wrapf(err, "writing reports")
-	}
-	return nil
+	return allReports, nil
 }
 
 // TODO(ilackarms): move this somewhere else, make it part of dev-mode
