@@ -33,9 +33,10 @@ var _ = Describe("TranslatorSyncer", func() {
 		ingress              *v1alpha1.Ingress
 		proxy                *v1.Proxy
 		ctx                  context.Context
+		cancel               context.CancelFunc
 	)
 	BeforeEach(func() {
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		proxyClient, _ = v1.NewProxyClient(ctx, &factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
 		ingress = &v1alpha1.Ingress{Ingress: knative.Ingress{ObjectMeta: v12.ObjectMeta{Generation: 1},
 			Spec: knativev1alpha1.IngressSpec{
@@ -66,6 +67,11 @@ var _ = Describe("TranslatorSyncer", func() {
 		proxy = &v1.Proxy{Metadata: core.Metadata{Name: "hi", Namespace: "howareyou"}}
 		proxy, _ = proxyClient.Write(proxy, clients.WriteOpts{})
 	})
+
+	AfterEach(func() {
+		cancel()
+	})
+
 	It("only processes annotated proxies when requireIngressClass is set to true successful proxy status to the ingresses it was created from", func() {
 		syncer := NewSyncer(proxyAddressExternal, proxyAddressInternal, namespace, proxyClient, knativeClient, make(chan error), true).(*translatorSyncer)
 
@@ -116,7 +122,7 @@ var _ = Describe("TranslatorSyncer", func() {
 		err := syncer.propagateProxyStatus(context.TODO(), proxy, v1alpha1.IngressList{ingress})
 		Expect(err).NotTo(HaveOccurred())
 
-		ci, err := knativeClient.Ingresses(ingress.Namespace).Get(ingress.Name, v12.GetOptions{})
+		ci, err := knativeClient.Ingresses(ingress.Namespace).Get(ctx, ingress.Name, v12.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(ci.Status.IsReady()).To(BeTrue())
