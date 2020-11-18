@@ -160,10 +160,10 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 		}
 
 		// Record some metrics
-		clustersLen := len(xdsSnapshot.GetResources(xds.ClusterTypeV2).Items)
-		listenersLen := len(xdsSnapshot.GetResources(xds.ListenerTypeV2).Items)
-		routesLen := len(xdsSnapshot.GetResources(xds.RouteTypeV2).Items)
-		endpointsLen := len(xdsSnapshot.GetResources(xds.EndpointTypeV2).Items)
+		clustersLen := len(xdsSnapshot.GetResources(xds.ClusterTypeV3).Items)
+		listenersLen := len(xdsSnapshot.GetResources(xds.ListenerTypeV3).Items)
+		routesLen := len(xdsSnapshot.GetResources(xds.RouteTypeV3).Items)
+		endpointsLen := len(xdsSnapshot.GetResources(xds.EndpointTypeV3).Items)
 
 		measureResource(proxyCtx, "clusters", clustersLen)
 		measureResource(proxyCtx, "listeners", listenersLen)

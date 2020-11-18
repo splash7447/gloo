@@ -26,27 +26,40 @@ import (
 // Consistently is important for the convergence as different resource types
 // from the snapshot may be delivered to the proxy in arbitrary order.
 type EnvoySnapshot struct {
-	// Endpoints are items in the EDS response payload.
+	// Endpoints are items in the EDS V3 response payload.
 	Endpoints cache.Resources
+
+	// hiddenDeprecatedEndpoints are items in the EDS V2 response payload.
+	hiddenDeprecatedEndpoints cache.Resources
 
 	// Clusters are items in the CDS response payload.
 	Clusters cache.Resources
 
+	// hiddenDeprecatedClusters are items in the EDS V2 response payload.
+	hiddenDeprecatedClusters cache.Resources
+
 	// Routes are items in the RDS response payload.
 	Routes cache.Resources
 
+	// hiddenDeprecatedRoutes are items in the EDS V2 response payload.
+	hiddenDeprecatedRoutes cache.Resources
+
 	// Listeners are items in the LDS response payload.
 	Listeners cache.Resources
+	// hiddenDeprecatedListeners are items in the EDS V2 response payload.
+	hiddenDeprecatedListeners cache.Resources
 }
 
 var _ cache.Snapshot = &EnvoySnapshot{}
 
 // NewSnapshot creates a snapshot from response types and a version.
-func NewSnapshot(version string,
+func NewSnapshot(
+	version string,
 	endpoints []cache.Resource,
 	clusters []cache.Resource,
 	routes []cache.Resource,
-	listeners []cache.Resource) *EnvoySnapshot {
+	listeners []cache.Resource,
+) *EnvoySnapshot {
 	return &EnvoySnapshot{
 		Endpoints: cache.NewResources(version, endpoints),
 		Clusters:  cache.NewResources(version, clusters),
@@ -55,10 +68,12 @@ func NewSnapshot(version string,
 	}
 }
 
-func NewSnapshotFromResources(endpoints cache.Resources,
+func NewSnapshotFromResources(
+	endpoints cache.Resources,
 	clusters cache.Resources,
 	routes cache.Resources,
-	listeners cache.Resources) cache.Snapshot {
+	listeners cache.Resources,
+) cache.Snapshot {
 	return &EnvoySnapshot{
 		Endpoints: endpoints,
 		Clusters:  clusters,
@@ -100,14 +115,22 @@ func (s *EnvoySnapshot) GetResources(typ string) cache.Resources {
 		return cache.Resources{}
 	}
 	switch typ {
-	case EndpointTypeV2:
+	case EndpointTypeV3:
 		return s.Endpoints
-	case ClusterTypeV2:
+	case ClusterTypeV3:
 		return s.Clusters
-	case RouteTypeV2:
+	case RouteTypeV3:
 		return s.Routes
-	case ListenerTypeV2:
+	case ListenerTypeV3:
 		return s.Listeners
+	case EndpointTypeV2:
+		return s.hiddenDeprecatedEndpoints
+	case ClusterTypeV2:
+		return s.hiddenDeprecatedClusters
+	case RouteTypeV2:
+		return s.hiddenDeprecatedRoutes
+	case ListenerTypeV2:
+		return s.hiddenDeprecatedListeners
 	}
 	return cache.Resources{}
 }
