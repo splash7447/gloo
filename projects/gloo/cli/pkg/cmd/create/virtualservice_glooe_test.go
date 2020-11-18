@@ -16,13 +16,16 @@ import (
 
 var _ = Describe("VirtualService", func() {
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	Context("Interactive tests", func() {
 

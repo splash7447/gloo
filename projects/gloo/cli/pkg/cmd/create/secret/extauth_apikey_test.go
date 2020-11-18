@@ -20,13 +20,16 @@ import (
 var _ = Describe("ExtauthApiKey", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should create secret without labels", func() {
 		err := testutils.Glooctl("create secret apikey --name user --namespace gloo-system --apikey secretApiKey")

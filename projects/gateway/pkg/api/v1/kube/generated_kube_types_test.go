@@ -36,6 +36,7 @@ var _ = Describe("Generated Kube Code", func() {
 		upstreamClient       gloov1.UpstreamClient
 		virtualServiceClient gatewayv1.VirtualServiceClient
 		ctx                  context.Context
+		cancel               context.CancelFunc
 	)
 
 	BeforeEach(func() {
@@ -43,7 +44,7 @@ var _ = Describe("Generated Kube Code", func() {
 			Skip("This test creates kubernetes resources and is disabled by default. To enable, set RUN_KUBE_TESTS=1 in your env.")
 		}
 
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		cfg, err := kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -90,6 +91,7 @@ var _ = Describe("Generated Kube Code", func() {
 		}
 		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(ctx, gloov1.UpstreamCrd.FullName(), v1.DeleteOptions{})
 		_ = apiExts.ApiextensionsV1beta1().CustomResourceDefinitions().Delete(ctx, gatewayv1.VirtualServiceCrd.FullName(), v1.DeleteOptions{})
+		cancel()
 	})
 
 	It("can read and write a gloo resource as a typed kube object", func() {

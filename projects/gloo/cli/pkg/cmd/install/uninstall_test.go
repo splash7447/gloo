@@ -28,6 +28,7 @@ var _ = Describe("Uninstall", func() {
 		crdDeleteCmd           string
 		crdName                = "authconfigs.enterprise.gloo.solo.io"
 		ctx                    context.Context
+		cancel                 context.CancelFunc
 
 		testCRD = `
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -56,7 +57,7 @@ spec:
 		ctrl = gomock.NewController(GinkgoT())
 
 		// todo is this the right way to make a context when none is available?
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		mockHelmClient = mocks.NewMockHelmClient(ctrl)
 		mockHelmUninstallation = mocks.NewMockHelmUninstallation(ctrl)
 		mockReleaseListRunner = mocks.NewMockHelmReleaseListRunner(ctrl)
@@ -66,6 +67,7 @@ spec:
 
 	AfterEach(func() {
 		ctrl.Finish()
+		cancel()
 	})
 
 	When("a Gloo release object exists", func() {

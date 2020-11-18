@@ -21,12 +21,13 @@ import (
 
 var _ = Describe("Route", func() {
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 
 		vsClient := helpers.MustVirtualServiceClient(ctx)
 		vs := &gatewayv1.VirtualService{
@@ -90,6 +91,8 @@ var _ = Describe("Route", func() {
 		_, err = usClient.Write(us2, clients.WriteOpts{})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should select a route", func() {
 		testutil.ExpectInteractive(func(c *testutil.Console) {

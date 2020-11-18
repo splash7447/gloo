@@ -31,6 +31,7 @@ var _ = Describe("StatusSyncer", func() {
 		namespace string
 		cfg       *rest.Config
 		ctx       context.Context
+		cancel    context.CancelFunc
 	)
 
 	BeforeEach(func() {
@@ -39,7 +40,7 @@ var _ = Describe("StatusSyncer", func() {
 		}
 		namespace = helpers.RandString(8)
 		var err error
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		cfg, err = kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -55,6 +56,7 @@ var _ = Describe("StatusSyncer", func() {
 	})
 	AfterEach(func() {
 		setup.TeardownKube(namespace)
+		cancel()
 	})
 
 	It("updates kube ingresses with endpoints from the service", func() {

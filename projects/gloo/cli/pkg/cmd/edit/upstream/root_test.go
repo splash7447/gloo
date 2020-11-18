@@ -19,10 +19,11 @@ var _ = Describe("Root", func() {
 		upstream *gloov1.Upstream
 		upClient gloov1.UpstreamClient
 		ctx      context.Context
+		cancel   context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		// create a settings object
 		upClient = helpers.MustUpstreamClient(ctx)
 		upstream = &gloov1.Upstream{
@@ -32,6 +33,8 @@ var _ = Describe("Root", func() {
 			},
 		}
 	})
+
+	AfterEach(func() { cancel() })
 
 	RefreshUpstream := func() {
 		var err error

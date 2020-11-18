@@ -30,6 +30,9 @@ var (
 	}
 	ref     = metadata.Ref()
 	testErr = errors.Errorf("test-err")
+
+	ctx    context.Context
+	cancel context.CancelFunc
 )
 
 var _ = Describe("SelectorTest", func() {
@@ -50,10 +53,12 @@ var _ = Describe("SelectorTest", func() {
 		vsClient = mock_gateway.NewMockVirtualServiceClient(mockCtrl)
 		nsLister = mock_listers.NewMockNamespaceLister(mockCtrl)
 		selector = selectionutils.NewVirtualServiceSelector(vsClient, nsLister, podNamespace)
+		ctx, cancel = context.WithCancel(context.Background())
 	})
 
 	AfterEach(func() {
 		mockCtrl.Finish()
+		cancel()
 	})
 
 	Describe("VirtualServiceSelector", func() {
@@ -69,7 +74,7 @@ var _ = Describe("SelectorTest", func() {
 				expected := getVirtualService(metadata, "")
 
 				vsClient.EXPECT().
-					Read(ref.Namespace, ref.Name, clients.ReadOpts{Ctx: context.Background()}).
+					Read(ref.Namespace, ref.Name, clients.ReadOpts{Ctx: ctx}).
 					Return(expected, nil)
 
 				actual, err := selector.SelectOrBuildVirtualService(context.Background(), &ref)
@@ -81,10 +86,10 @@ var _ = Describe("SelectorTest", func() {
 				expected := getDefault(ref.GetNamespace(), ref.GetName())
 
 				vsClient.EXPECT().
-					Read(ref.GetNamespace(), ref.GetName(), clients.ReadOpts{Ctx: context.Background()}).
+					Read(ref.GetNamespace(), ref.GetName(), clients.ReadOpts{Ctx: ctx}).
 					Return(nil, sk_errors.NewNotExistErr(ref.GetNamespace(), ref.GetName(), testErr))
 
-				actual, err := selector.SelectOrBuildVirtualService(context.Background(), &ref)
+				actual, err := selector.SelectOrBuildVirtualService(ctx, &ref)
 				Expect(err).NotTo(HaveOccurred())
 				ExpectEqualProtoMessages(actual, expected)
 			})
@@ -93,17 +98,17 @@ var _ = Describe("SelectorTest", func() {
 				nameRef := &core.ResourceRef{Name: "just-name"}
 				expected := getDefault(podNamespace, nameRef.Name)
 
-				actual, err := selector.SelectOrBuildVirtualService(context.Background(), nameRef)
+				actual, err := selector.SelectOrBuildVirtualService(ctx, nameRef)
 				Expect(err).NotTo(HaveOccurred())
 				ExpectEqualProtoMessages(actual, expected)
 			})
 
 			It("errors when the client errors on read", func() {
 				vsClient.EXPECT().
-					Read(ref.Namespace, ref.Name, clients.ReadOpts{Ctx: context.Background()}).
+					Read(ref.Namespace, ref.Name, clients.ReadOpts{Ctx: ctx}).
 					Return(nil, testErr)
 
-				_, err := selector.SelectOrBuildVirtualService(context.Background(), &ref)
+				_, err := selector.SelectOrBuildVirtualService(ctx, &ref)
 				Expect(err).To(HaveOccurred())
 				Expect(err).To(Equal(testErr))
 			})
@@ -121,10 +126,10 @@ var _ = Describe("SelectorTest", func() {
 					List(context.Background()).
 					Return([]string{podNamespace, otherNs}, nil)
 				vsClient.EXPECT().
-					List(podNamespace, clients.ListOpts{Ctx: context.Background()}).
+					List(podNamespace, clients.ListOpts{Ctx: ctx}).
 					Return(nil, nil)
 				vsClient.EXPECT().
-					List(otherNs, clients.ListOpts{Ctx: context.Background()}).
+					List(otherNs, clients.ListOpts{Ctx: ctx}).
 					Return(list, nil)
 
 				actual, err := selector.SelectOrBuildVirtualService(context.Background(), nil)
@@ -139,7 +144,7 @@ var _ = Describe("SelectorTest", func() {
 					List(context.Background()).
 					Return([]string{podNamespace}, nil)
 				vsClient.EXPECT().
-					List(podNamespace, clients.ListOpts{Ctx: context.Background()}).
+					List(podNamespace, clients.ListOpts{Ctx: ctx}).
 					Return(nil, nil)
 
 				actual, err := selector.SelectOrBuildVirtualService(context.Background(), nil)
@@ -162,7 +167,7 @@ var _ = Describe("SelectorTest", func() {
 					List(context.Background()).
 					Return([]string{otherNs}, nil)
 				vsClient.EXPECT().
-					List(otherNs, clients.ListOpts{Ctx: context.Background()}).
+					List(otherNs, clients.ListOpts{Ctx: ctx}).
 					Return(nil, testErr)
 
 				_, err := selector.SelectOrBuildVirtualService(context.Background(), nil)

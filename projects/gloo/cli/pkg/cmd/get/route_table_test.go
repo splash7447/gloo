@@ -16,11 +16,12 @@ import (
 
 var _ = Describe("Get RouteTable", func() {
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		_, err := helpers.MustKubeClient().CoreV1().Namespaces().Create(ctx, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: defaults.GlooSystem,
@@ -30,6 +31,7 @@ var _ = Describe("Get RouteTable", func() {
 	})
 	AfterEach(func() {
 		helpers.UseDefaultClients()
+		cancel()
 	})
 	It("gets the route table list", func() {
 		rt := helpers.MustRouteTableClient(ctx)

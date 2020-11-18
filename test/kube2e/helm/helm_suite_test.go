@@ -36,7 +36,7 @@ func TestHelm(t *testing.T) {
 }
 
 var testHelper *helper.SoloTestHelper
-var ctx, _ = context.WithCancel(context.Background())
+var ctx, cancel = context.WithCancel(context.Background())
 
 var _ = BeforeSuite(StartTestHelper)
 var _ = AfterSuite(TearDownTestHelper)
@@ -81,6 +81,7 @@ func TearDownTestHelper() {
 		Expect(err).NotTo(HaveOccurred())
 		_, err = kube2e.MustKubeClient().CoreV1().Namespaces().Get(ctx, testHelper.InstallNamespace, metav1.GetOptions{})
 		Expect(apierrors.IsNotFound(err)).To(BeTrue())
+		cancel()
 	}
 }
 

@@ -20,11 +20,12 @@ var _ = Describe("UpstreamGroup", func() {
 	var (
 		expectedDest []*v1.WeightedDestination
 		ctx          context.Context
+		cancel       context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		us := &v1.Upstream{
 			UpstreamType: &v1.Upstream_Aws{
 				Aws: &aws.UpstreamSpec{
@@ -77,6 +78,8 @@ var _ = Describe("UpstreamGroup", func() {
 		Expect(err).NotTo(HaveOccurred())
 		return ug
 	}
+
+	AfterEach(func() { cancel() })
 
 	Context("Empty args and flags", func() {
 		It("should give clear error message", func() {

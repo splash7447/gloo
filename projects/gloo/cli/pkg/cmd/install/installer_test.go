@@ -29,6 +29,7 @@ var _ = Describe("Install", func() {
 		chart                *helmchart.Chart
 		helmRelease          *release.Release
 		ctx                  context.Context
+		cancel               context.CancelFunc
 
 		glooOsVersion          = "test"
 		glooOsChartUri         = "https://storage.googleapis.com/solo-public-helm/charts/gloo-test.tgz"
@@ -82,7 +83,7 @@ rules:
 		ctrl = gomock.NewController(GinkgoT())
 		mockHelmClient = mocks.NewMockHelmClient(ctrl)
 		mockHelmInstallation = mocks.NewMockHelmInstallation(ctrl)
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 
 		chart = &helmchart.Chart{
 			Metadata: &helmchart.Metadata{
@@ -110,6 +111,7 @@ rules:
 	AfterEach(func() {
 		version.Version = version.UndefinedVersion
 		ctrl.Finish()
+		cancel()
 	})
 
 	installWithConfig := func(mode install.Mode, expectedValues map[string]interface{}, expectedChartUri string, installConfig *options.Install) {

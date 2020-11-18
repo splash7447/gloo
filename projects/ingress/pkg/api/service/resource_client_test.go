@@ -30,12 +30,13 @@ var _ = Describe("ResourceClient", func() {
 		namespace string
 		cfg       *rest.Config
 		ctx       context.Context
+		cancel    context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		namespace = helpers.RandString(8)
 		var err error
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		cfg, err = kubeutils.GetConfig("", "")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -50,6 +51,7 @@ var _ = Describe("ResourceClient", func() {
 	})
 	AfterEach(func() {
 		setup.TeardownKube(namespace)
+		cancel()
 	})
 
 	It("can CRUD on v1 Services", func() {

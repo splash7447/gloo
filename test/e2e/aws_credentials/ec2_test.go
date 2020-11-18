@@ -32,6 +32,7 @@ var _ = Describe("", func() {
 		secretClient v1.SecretClient
 		roleArn      string
 		ctx          context.Context
+		cancel       context.CancelFunc
 	)
 
 	addCredentials := func() {
@@ -70,12 +71,16 @@ var _ = Describe("", func() {
 
 	BeforeEach(func() {
 		var err error
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		secretClient, err = getSecretClient(ctx)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(os.Setenv("AWS_ARN_ROLE_1", "arn:aws:iam::410461945957:role/describe-all-ec2-poc")).NotTo(HaveOccurred())
 
 		addCredentials()
+	})
+
+	AfterEach(func() {
+		cancel()
 	})
 
 	It("should assume role correctly", func() {

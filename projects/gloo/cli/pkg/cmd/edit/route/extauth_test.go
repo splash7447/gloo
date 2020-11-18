@@ -22,10 +22,11 @@ var _ = Describe("Extauth", func() {
 		vsvc     *gatewayv1.VirtualService
 		vsClient gatewayv1.VirtualServiceClient
 		ctx      context.Context
+		cancel   context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		// create a settings object
 		vsClient = helpers.MustVirtualServiceClient(ctx)
 		vsvc = &gatewayv1.VirtualService{
@@ -48,6 +49,8 @@ var _ = Describe("Extauth", func() {
 		vsvc, err = vsClient.Write(vsvc, clients.WriteOpts{})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	extAuthExtension := func(index int, metadata core.Metadata) *extauthpb.ExtAuthExtension {
 		vsv, err := helpers.MustVirtualServiceClient(ctx).Read(metadata.Namespace, metadata.Name, clients.ReadOpts{})

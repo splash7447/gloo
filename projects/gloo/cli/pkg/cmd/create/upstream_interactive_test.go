@@ -25,13 +25,16 @@ var _ = Describe("Upstream Interactive Mode", func() {
 	)
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should not be allowed for Kube", func() {
 		testutil.ExpectInteractive(func(c *testutil.Console) {

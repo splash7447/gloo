@@ -177,7 +177,9 @@ var _ = Describe("SetupSyncer", func() {
 				kubeCoreCache kube.SharedCache
 			)
 			BeforeEach(func() {
-
+				if os.Getenv("RUN_KUBE_TESTS") != "1" {
+					Skip("This test creates kubernetes resources and is disabled by default. To enable, set RUN_KUBE_TESTS=1 in your env.")
+				}
 				os.Setenv("AUTO_CREATE_CRDS", "1")
 				settings.ConfigSource = &v1.Settings_KubernetesConfigSource{KubernetesConfigSource: &v1.Settings_KubernetesCrds{}}
 				settings.SecretSource = &v1.Settings_KubernetesSecretSource{KubernetesSecretSource: &v1.Settings_KubernetesSecrets{}}

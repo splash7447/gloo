@@ -15,7 +15,9 @@ import (
 var _ = Describe("ValidatingWebhookConfiguration", func() {
 	It("updates a vwc with the provided cacert", func() {
 
-		ctx, _ := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(context.Background())
+		defer func() { cancel() }()
+
 		kube := fake.NewSimpleClientset()
 		vwcCfg := WebhookTlsConfig{
 			ServiceName:      "mysvc",

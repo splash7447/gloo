@@ -23,11 +23,14 @@ var _ = Describe("Kube2e: helm", func() {
 		rlcCrdName         = "ratelimitconfigs.ratelimit.solo.io"
 		rlcCrdTemplateName = filepath.Join(util.GetModuleRoot(), "install", "helm", "gloo", "crds", "ratelimit_config.yaml")
 		ctx                context.Context
+		cancel             context.CancelFunc
 	)
 
 	BeforeEach(func() {
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("uses helm to upgrade to this gloo version without errors", func() {
 

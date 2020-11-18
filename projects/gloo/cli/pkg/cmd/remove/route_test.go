@@ -19,13 +19,16 @@ import (
 var _ = Describe("Remove Route", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should remove a route from a virtual service", func() {
 		vs, err := helpers.MustVirtualServiceClient(ctx).Write(&gatewayv1.VirtualService{

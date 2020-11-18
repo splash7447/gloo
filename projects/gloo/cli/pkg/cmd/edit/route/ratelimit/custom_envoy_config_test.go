@@ -21,10 +21,12 @@ var _ = Describe("CustomEnvoyConfig", func() {
 		vsvc     *gatewayv1.VirtualService
 		vsClient gatewayv1.VirtualServiceClient
 		ctx      context.Context
+		cancel   context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
 		// create a settings object
+		ctx, cancel = context.WithCancel(context.Background())
 		vsClient = helpers.MustVirtualServiceClient(ctx)
 		vsvc = &gatewayv1.VirtualService{
 			Metadata: core.Metadata{
@@ -40,6 +42,8 @@ var _ = Describe("CustomEnvoyConfig", func() {
 		vsvc, err = vsClient.Write(vsvc, clients.WriteOpts{})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	rateLimitExtension := func(index int) *ratelimitpb.RateLimitRouteExtension {
 		var err error

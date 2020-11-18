@@ -26,6 +26,7 @@ var _ = Describe("polling", func() {
 	var (
 		epw            *edsWatcher
 		ctx            context.Context
+		cancel         context.CancelFunc
 		writeNamespace string
 		secretClient   v1.SecretClient
 		refreshRate    time.Duration
@@ -33,7 +34,7 @@ var _ = Describe("polling", func() {
 	)
 
 	BeforeEach(func() {
-		ctx = context.Background()
+		ctx, cancel = context.WithCancel(context.Background())
 		writeNamespace = "default"
 		secretClient = getSecretClient(ctx)
 		refreshRate = time.Second
@@ -41,6 +42,8 @@ var _ = Describe("polling", func() {
 		err := primeSecretClient(secretClient, []*core.ResourceRef{testSecretRef1, testSecretRef2})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should poll, one key filter upstream", func() {
 		upstreams := v1.UpstreamList{&testUpstream1}

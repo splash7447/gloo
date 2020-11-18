@@ -23,12 +23,15 @@ var _ = Describe("Knative", func() {
 		InstallKnativeMonitoring:      true,
 	}
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	Context("RenderKnativeManifests", func() {
 		It("renders manifests for each knative component", func() {

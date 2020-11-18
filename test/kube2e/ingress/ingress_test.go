@@ -19,12 +19,15 @@ import (
 var _ = Describe("Kube2e: Ingress", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("works", func() {
 		cfg, err := kubeutils.GetConfig("", "")

@@ -19,12 +19,13 @@ var _ = Describe("Root", func() {
 	emptyFlagsMsg := fmt.Sprintf("Error: %s", get.EmptyGetError.Error())
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		_, err := helpers.MustKubeClient().CoreV1().Namespaces().Create(ctx, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: defaults.GlooSystem,
@@ -32,6 +33,8 @@ var _ = Describe("Root", func() {
 		}, metav1.CreateOptions{})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	Context("Empty args and flags", func() {
 		It("should give clear error message", func() {

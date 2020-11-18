@@ -19,13 +19,16 @@ var _ = Describe("version command", func() {
 		ctrl   *gomock.Controller
 		client *mock_version.MockServerVersion
 		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		ctrl = gomock.NewController(T)
 		client = mock_version.NewMockServerVersion(ctrl)
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	Context("getVersion", func() {
 		It("will error if an error occurs while getting the version", func() {

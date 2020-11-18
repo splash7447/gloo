@@ -23,16 +23,18 @@ import (
 var _ = Describe("Secret", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
 
 	AfterEach(func() {
 		helpers.UseDefaultClients()
+		cancel()
 	})
 
 	Context("Empty args and flags", func() {

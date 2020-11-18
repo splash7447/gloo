@@ -32,12 +32,16 @@ func TestIngress(t *testing.T) {
 	RunSpecs(t, "Ingress Suite")
 }
 
-var testHelper *helper.SoloTestHelper
+var (
+	testHelper *helper.SoloTestHelper
+	ctx        context.Context
+	cancel     context.CancelFunc
+)
 
 var _ = BeforeSuite(func() {
 	cwd, err := os.Getwd()
 	Expect(err).NotTo(HaveOccurred())
-	ctx, _ := context.WithCancel(context.Background())
+	ctx, cancel = context.WithCancel(context.Background())
 
 	randomNumber := time.Now().Unix() % 10000
 	testHelper, err = helper.NewSoloTestHelper(func(defaults helper.TestConfig) helper.TestConfig {
@@ -67,5 +71,6 @@ var _ = AfterSuite(func() {
 		Eventually(func() error {
 			return testutils.Kubectl("get", "namespace", testHelper.InstallNamespace)
 		}, "60s", "1s").Should(HaveOccurred())
+		cancel()
 	}
 })

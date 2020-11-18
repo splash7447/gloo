@@ -55,6 +55,7 @@ var _ = Describe("version command", func() {
 		v_21_0  = "0.21.0"
 		v_1_0_0 = "1.0.0"
 		ctx     context.Context
+		cancel  context.CancelFunc
 
 		buildContainerVersions = func(isEnterprise bool, containers []*version.Kubernetes_Container) []*version.ServerVersion {
 			return []*version.ServerVersion{{
@@ -80,7 +81,7 @@ var _ = Describe("version command", func() {
 		versionGetter = &testVersionGetter{}
 		logger = &testLogger{}
 		expectedOutputLines = []string{}
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 
 		// this may not be set in some contexts (like running through goland)
 		// so explicitly set it to get predictable test behavior
@@ -94,6 +95,7 @@ var _ = Describe("version command", func() {
 		for _, line := range expectedOutputLines {
 			Expect(output).To(ContainSubstring(line), "Output did not contain expected substring")
 		}
+		cancel()
 	})
 
 	It("should not warn when the versions match exactly", func() {

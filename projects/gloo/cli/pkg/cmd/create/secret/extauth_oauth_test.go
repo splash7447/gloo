@@ -19,13 +19,16 @@ import (
 var _ = Describe("ExtauthOauth", func() {
 
 	var (
-		ctx context.Context
+		ctx    context.Context
+		cancel context.CancelFunc
 	)
 
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 	})
+
+	AfterEach(func() { cancel() })
 
 	It("should create secret", func() {
 		err := testutils.Glooctl("create secret oauth --name oauth --namespace gloo-system --client-secret 123")

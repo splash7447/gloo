@@ -23,7 +23,9 @@ import (
 
 var _ = Describe("TranslatorSyncer", func() {
 	It("propagates successful proxy status to the clusteringresses it was created from", func() {
-		ctx, _ := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(context.Background())
+		defer func() { cancel() }()
+
 		proxyAddress := "proxy-address"
 		namespace := "write-namespace"
 		proxyClient, _ := v1.NewProxyClient(ctx, &factory.MemoryResourceClientFactory{Cache: memory.NewInMemoryResourceCache()})
@@ -54,7 +56,6 @@ var _ = Describe("TranslatorSyncer", func() {
 		ci, err = knativeClient.ciClient.Get(ctx, clusterIngress.Name, v12.GetOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
-		// todo figure out new versino of ci.Status.IsReady()
 		Expect(ci.IsReady()).To(BeTrue())
 	})
 })

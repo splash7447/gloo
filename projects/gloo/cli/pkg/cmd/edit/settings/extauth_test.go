@@ -21,10 +21,11 @@ var _ = Describe("Extauth", func() {
 		settings       *gloov1.Settings
 		settingsClient gloov1.SettingsClient
 		ctx            context.Context
+		cancel         context.CancelFunc
 	)
 	BeforeEach(func() {
 		helpers.UseMemoryClients()
-		ctx, _ = context.WithCancel(context.Background())
+		ctx, cancel = context.WithCancel(context.Background())
 		// create a settings object
 		settings = testutils.GetTestSettings()
 		settingsClient = helpers.MustSettingsClient(ctx)
@@ -32,6 +33,8 @@ var _ = Describe("Extauth", func() {
 		_, err := settingsClient.Write(settings, clients.WriteOpts{OverwriteExisting: true})
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	AfterEach(func() { cancel() })
 
 	extAuthExtension := func() *extauthpb.Settings {
 		var err error
