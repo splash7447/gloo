@@ -53,26 +53,26 @@ func (s *envoyServerV2) StreamAggregatedResources(
 }
 
 func (s *envoyServerV2) StreamEndpoints(stream v2.EndpointDiscoveryService_StreamEndpointsServer) error {
-	return s.Server.StreamV2(stream, EndpointType)
+	return s.Server.StreamV2(stream, EndpointTypeV2)
 }
 
 func (s *envoyServerV2) StreamClusters(stream v2.ClusterDiscoveryService_StreamClustersServer) error {
-	return s.Server.StreamV2(stream, ClusterType)
+	return s.Server.StreamV2(stream, ClusterTypeV2)
 }
 
 func (s *envoyServerV2) StreamRoutes(stream v2.RouteDiscoveryService_StreamRoutesServer) error {
-	return s.Server.StreamV2(stream, RouteType)
+	return s.Server.StreamV2(stream, RouteTypeV2)
 }
 
 func (s *envoyServerV2) StreamListeners(stream v2.ListenerDiscoveryService_StreamListenersServer) error {
-	return s.Server.StreamV2(stream, ListenerType)
+	return s.Server.StreamV2(stream, ListenerTypeV2)
 }
 
 func (s *envoyServerV2) FetchEndpoints(ctx context.Context, req *v2.DiscoveryRequest) (*v2.DiscoveryResponse, error) {
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = EndpointType
+	req.TypeUrl = EndpointTypeV2
 	return s.Server.FetchV2(ctx, req)
 }
 
@@ -80,7 +80,7 @@ func (s *envoyServerV2) FetchClusters(ctx context.Context, req *v2.DiscoveryRequ
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = ClusterType
+	req.TypeUrl = ClusterTypeV2
 	return s.Server.FetchV2(ctx, req)
 }
 
@@ -88,7 +88,7 @@ func (s *envoyServerV2) FetchRoutes(ctx context.Context, req *v2.DiscoveryReques
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = RouteType
+	req.TypeUrl = RouteTypeV2
 	return s.Server.FetchV2(ctx, req)
 }
 
@@ -96,7 +96,7 @@ func (s *envoyServerV2) FetchListeners(ctx context.Context, req *v2.DiscoveryReq
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = ListenerType
+	req.TypeUrl = ListenerTypeV2
 	return s.Server.FetchV2(ctx, req)
 }
 

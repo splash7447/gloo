@@ -58,25 +58,25 @@ func (s *envoyServerV3) StreamAggregatedResources(
 func (s *envoyServerV3) StreamEndpoints(
 	stream envoy_service_endpoint_v3.EndpointDiscoveryService_StreamEndpointsServer,
 ) error {
-	return s.Server.StreamV3(stream, EndpointType)
+	return s.Server.StreamV3(stream, EndpointTypeV2)
 }
 
 func (s *envoyServerV3) StreamClusters(
 	stream envoy_service_cluster_v3.ClusterDiscoveryService_StreamClustersServer,
 ) error {
-	return s.Server.StreamV3(stream, ClusterType)
+	return s.Server.StreamV3(stream, ClusterTypeV2)
 }
 
 func (s *envoyServerV3) StreamRoutes(
 	stream envoy_service_route_v3.RouteDiscoveryService_StreamRoutesServer,
 ) error {
-	return s.Server.StreamV3(stream, RouteType)
+	return s.Server.StreamV3(stream, RouteTypeV2)
 }
 
 func (s *envoyServerV3) StreamListeners(
 	stream envoy_service_listener_v3.ListenerDiscoveryService_StreamListenersServer,
 ) error {
-	return s.Server.StreamV3(stream, ListenerType)
+	return s.Server.StreamV3(stream, ListenerTypeV2)
 }
 
 func (s *envoyServerV3) FetchEndpoints(
@@ -86,7 +86,7 @@ func (s *envoyServerV3) FetchEndpoints(
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = EndpointType
+	req.TypeUrl = EndpointTypeV2
 	return s.Server.FetchV3(ctx, req)
 }
 
@@ -97,7 +97,7 @@ func (s *envoyServerV3) FetchClusters(
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = ClusterType
+	req.TypeUrl = ClusterTypeV2
 	return s.Server.FetchV3(ctx, req)
 }
 
@@ -108,7 +108,7 @@ func (s *envoyServerV3) FetchRoutes(
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = RouteType
+	req.TypeUrl = RouteTypeV2
 	return s.Server.FetchV3(ctx, req)
 }
 
@@ -119,7 +119,7 @@ func (s *envoyServerV3) FetchListeners(
 	if req == nil {
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
-	req.TypeUrl = ListenerType
+	req.TypeUrl = ListenerTypeV2
 	return s.Server.FetchV3(ctx, req)
 }
 

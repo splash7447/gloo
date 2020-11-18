@@ -100,13 +100,13 @@ func (s *EnvoySnapshot) GetResources(typ string) cache.Resources {
 		return cache.Resources{}
 	}
 	switch typ {
-	case EndpointType:
+	case EndpointTypeV2:
 		return s.Endpoints
-	case ClusterType:
+	case ClusterTypeV2:
 		return s.Clusters
-	case RouteType:
+	case RouteTypeV2:
 		return s.Routes
-	case ListenerType:
+	case ListenerTypeV2:
 		return s.Listeners
 	}
 	return cache.Resources{}
