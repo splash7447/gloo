@@ -3,7 +3,7 @@ package translator
 import (
 	"sort"
 
-	envoycore "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
+	envoy_config_core_v3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	envoy_config_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	envoyhttp "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
@@ -38,9 +38,10 @@ func NewHttpConnectionManager(
 		},
 		RouteSpecifier: &envoyhttp.HttpConnectionManager_Rds{
 			Rds: &envoyhttp.Rds{
-				ConfigSource: &envoycore.ConfigSource{
-					ConfigSourceSpecifier: &envoycore.ConfigSource_Ads{
-						Ads: &envoycore.AggregatedConfigSource{},
+				ConfigSource: &envoy_config_core_v3.ConfigSource{
+					ResourceApiVersion: envoy_config_core_v3.ApiVersion_V3,
+					ConfigSourceSpecifier: &envoy_config_core_v3.ConfigSource_Ads{
+						Ads: &envoy_config_core_v3.AggregatedConfigSource{},
 					},
 				},
 				RouteConfigName: rdsName,
