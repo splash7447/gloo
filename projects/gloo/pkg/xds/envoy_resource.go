@@ -40,22 +40,22 @@ func NewEnvoyResource(r cache.ResourceProto) *EnvoyResource {
 
 // Resource types in xDS v3.
 const (
-	EndpointTypeV3 = cache.TypePrefix + "/envoy.config.endpoint.v3.ClusterLoadAssignment"
-	ClusterTypeV3  = cache.TypePrefix + "/envoy.config.cluster.v3.Cluster"
-	RouteTypeV3    = cache.TypePrefix + "/envoy.config.route.v3.RouteConfiguration"
-	ListenerTypeV3 = cache.TypePrefix + "/envoy.config.listener.v3.Listener"
-	SecretTypeV3   = cache.TypePrefix + "/envoy.extensions.transport_sockets.tls.v3.Secret"
-	RuntimeTypeV3  = cache.TypePrefix + "/envoy.service.runtime.v3.Runtime"
+	EndpointType = cache.TypePrefix + "/envoy.config.endpoint.v3.ClusterLoadAssignment"
+	ClusterType  = cache.TypePrefix + "/envoy.config.cluster.v3.Cluster"
+	RouteType    = cache.TypePrefix + "/envoy.config.route.v3.RouteConfiguration"
+	ListenerType = cache.TypePrefix + "/envoy.config.listener.v3.Listener"
+	SecretType   = cache.TypePrefix + "/envoy.extensions.transport_sockets.tls.v3.Secret"
+	RuntimeType  = cache.TypePrefix + "/envoy.service.runtime.v3.Runtime"
 )
 
 // Fetch urls in xDS v3.
 const (
-	FetchEndpointsV3 = "/v3/discovery:endpoints"
-	FetchClustersV3  = "/v3/discovery:clusters"
-	FetchListenersV3 = "/v3/discovery:listeners"
-	FetchRoutesV3    = "/v3/discovery:routes"
-	FetchSecretsV3   = "/v3/discovery:secrets"
-	FetchRuntimesV3  = "/v3/discovery:runtime"
+	FetchEndpoints = "/v3/discovery:endpoints"
+	FetchClusters  = "/v3/discovery:clusters"
+	FetchListeners = "/v3/discovery:listeners"
+	FetchRoutes    = "/v3/discovery:routes"
+	FetchSecrets   = "/v3/discovery:secrets"
+	FetchRuntimes  = "/v3/discovery:runtime"
 )
 
 // Resource types in xDS v2.
@@ -139,13 +139,13 @@ func (e *EnvoyResource) Type() string {
 	case *envoy_api_v2.Listener:
 		return ListenerTypeV2
 	case *envoy_config_endpoint_v3.ClusterLoadAssignment:
-		return EndpointTypeV3
+		return EndpointType
 	case *envoy_config_cluster_v3.Cluster:
-		return ClusterTypeV3
+		return ClusterType
 	case *envoy_config_route_v3.RouteConfiguration:
-		return RouteTypeV3
+		return RouteType
 	case *envoy_config_listener_v3.Listener:
-		return ListenerTypeV3
+		return ListenerType
 	default:
 		return ""
 	}
@@ -215,7 +215,7 @@ func (e *EnvoyResource) References() []cache.XdsResourceReference {
 		// for EDS type, use cluster name or ServiceName override
 		if v.GetType() == envoy_config_cluster_v3.Cluster_EDS {
 			rr := cache.XdsResourceReference{
-				Type: EndpointTypeV3,
+				Type: EndpointType,
 			}
 			if v.GetEdsClusterConfig().GetServiceName() != "" {
 				rr.Name = v.GetEdsClusterConfig().GetServiceName()
@@ -243,7 +243,7 @@ func (e *EnvoyResource) References() []cache.XdsResourceReference {
 
 				if config.GetRds() != nil {
 					rr := cache.XdsResourceReference{
-						Type: RouteTypeV3,
+						Type: RouteType,
 						Name: config.GetRds().GetRouteConfigName(),
 					}
 					out[rr] = true
@@ -306,9 +306,43 @@ func GetResourceReferences(resources map[string]cache.Resource) map[string]bool 
 					}
 
 					if rds, ok := config.RouteSpecifier.(*hcm.HttpConnectionManager_Rds); ok && rds != nil && rds.Rds != nil {
-						out[rds.Rds.RouteConfigName] = true
+						out[rds.Rds.GetRouteConfigName()] = true
 					}
 
+				}
+			}
+
+		case *envoy_config_endpoint_v3.ClusterLoadAssignment:
+			// no dependencies
+		case *envoy_config_cluster_v3.Cluster:
+			// for EDS type, use cluster name or ServiceName override
+			if v.GetType() == envoy_config_cluster_v3.Cluster_EDS {
+				if v.GetEdsClusterConfig().GetServiceName() != "" {
+					out[v.GetEdsClusterConfig().GetServiceName()] = true
+				} else {
+					out[v.GetName()] = true
+				}
+			}
+		case *envoy_config_route_v3.RouteConfiguration:
+			// References to clusters in both routes (and listeners) are not included
+			// in the result, because the clusters are retrieved in bulk currently,
+			// and not by name.
+		case *envoy_config_listener_v3.Listener:
+			// extract route configuration names from HTTP connection manager
+			for _, chain := range v.GetFilterChains() {
+				for _, filter := range chain.GetFilters() {
+					if filter.Name != wellknown.HTTPConnectionManager {
+						continue
+					}
+
+					config := hcm.HttpConnectionManager{}
+					if err := ptypes.UnmarshalAny(filter.GetTypedConfig(), &config); err != nil {
+						continue
+					}
+
+					if config.GetRds() != nil {
+						out[config.GetRds().GetRouteConfigName()] = true
+					}
 				}
 			}
 		}

@@ -24,10 +24,17 @@ import (
 )
 
 type Translator interface {
-	Translate(params plugins.Params, proxy *v1.Proxy) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error)
+	Translate(
+		params plugins.Params,
+		proxy *v1.Proxy,
+	) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error)
 }
 
-func NewTranslator(sslConfigTranslator utils.SslConfigTranslator, settings *v1.Settings, getPlugins func() []plugins.Plugin) Translator {
+func NewTranslator(
+	sslConfigTranslator utils.SslConfigTranslator,
+	settings *v1.Settings,
+	getPlugins func() []plugins.Plugin,
+) Translator {
 	return &translatorFactory{
 		getPlugins:          getPlugins,
 		settings:            settings,
@@ -41,7 +48,10 @@ type translatorFactory struct {
 	sslConfigTranslator utils.SslConfigTranslator
 }
 
-func (t *translatorFactory) Translate(params plugins.Params, proxy *v1.Proxy) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error) {
+func (t *translatorFactory) Translate(
+	params plugins.Params,
+	proxy *v1.Proxy,
+) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error) {
 	instance := &translatorInstance{
 		plugins:             t.getPlugins(),
 		settings:            t.settings,
@@ -57,7 +67,10 @@ type translatorInstance struct {
 	sslConfigTranslator utils.SslConfigTranslator
 }
 
-func (t *translatorInstance) Translate(params plugins.Params, proxy *v1.Proxy) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error) {
+func (t *translatorInstance) Translate(
+	params plugins.Params,
+	proxy *v1.Proxy,
+) (envoycache.Snapshot, reporter.ResourceReports, *validationapi.ProxyReport, error) {
 
 	ctx, span := trace.StartSpan(params.Ctx, "gloo.translator.Translate")
 	params.Ctx = ctx

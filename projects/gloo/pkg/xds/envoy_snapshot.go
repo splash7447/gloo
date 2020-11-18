@@ -115,13 +115,13 @@ func (s *EnvoySnapshot) GetResources(typ string) cache.Resources {
 		return cache.Resources{}
 	}
 	switch typ {
-	case EndpointTypeV3:
+	case EndpointType:
 		return s.Endpoints
-	case ClusterTypeV3:
+	case ClusterType:
 		return s.Clusters
-	case RouteTypeV3:
+	case RouteType:
 		return s.Routes
-	case ListenerTypeV3:
+	case ListenerType:
 		return s.Listeners
 	case EndpointTypeV2:
 		return s.hiddenDeprecatedEndpoints
@@ -156,6 +156,26 @@ func (s *EnvoySnapshot) Clone() cache.Snapshot {
 	snapshotClone.Listeners = cache.Resources{
 		Version: s.Listeners.Version,
 		Items:   cloneItems(s.Listeners.Items),
+	}
+
+	snapshotClone.hiddenDeprecatedEndpoints = cache.Resources{
+		Version: s.hiddenDeprecatedEndpoints.Version,
+		Items:   cloneItems(s.hiddenDeprecatedEndpoints.Items),
+	}
+
+	snapshotClone.hiddenDeprecatedClusters = cache.Resources{
+		Version: s.hiddenDeprecatedClusters.Version,
+		Items:   cloneItems(s.hiddenDeprecatedClusters.Items),
+	}
+
+	snapshotClone.hiddenDeprecatedRoutes = cache.Resources{
+		Version: s.hiddenDeprecatedRoutes.Version,
+		Items:   cloneItems(s.hiddenDeprecatedRoutes.Items),
+	}
+
+	snapshotClone.hiddenDeprecatedListeners = cache.Resources{
+		Version: s.hiddenDeprecatedListeners.Version,
+		Items:   cloneItems(s.hiddenDeprecatedListeners.Items),
 	}
 
 	return snapshotClone

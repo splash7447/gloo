@@ -4,9 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	envoyapi "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	listener "github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
-	route "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
+	envoy_config_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
+	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	hcm "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
 	"github.com/envoyproxy/go-control-plane/pkg/wellknown"
 	. "github.com/onsi/ginkgo"
@@ -32,22 +31,22 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 
 		missingCluster = "missing_cluster"
 
-		validRouteSingle = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_Cluster{
+		validRouteSingle = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 						Cluster: clusterName,
 					},
 				},
 			},
 		}
 
-		validRouteMulti = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_WeightedClusters{
-						WeightedClusters: &route.WeightedCluster{
-							Clusters: []*route.WeightedCluster_ClusterWeight{
+		validRouteMulti = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_WeightedClusters{
+						WeightedClusters: &envoy_config_route_v3.WeightedCluster{
+							Clusters: []*envoy_config_route_v3.WeightedCluster_ClusterWeight{
 								{
 									Name: clusterName,
 								},
@@ -61,32 +60,32 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 			},
 		}
 
-		missingRouteSingle = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_Cluster{
+		missingRouteSingle = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 						Cluster: missingCluster,
 					},
 				},
 			},
 		}
 
-		fixedRouteSingle = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_Cluster{
+		fixedRouteSingle = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_Cluster{
 						Cluster: fallbackClusterName,
 					},
 				},
 			},
 		}
 
-		missingRouteMulti = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_WeightedClusters{
-						WeightedClusters: &route.WeightedCluster{
-							Clusters: []*route.WeightedCluster_ClusterWeight{
+		missingRouteMulti = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_WeightedClusters{
+						WeightedClusters: &envoy_config_route_v3.WeightedCluster{
+							Clusters: []*envoy_config_route_v3.WeightedCluster_ClusterWeight{
 								{
 									Name: clusterName,
 								},
@@ -100,12 +99,12 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 			},
 		}
 
-		fixedRouteMulti = &route.Route{
-			Action: &route.Route_Route{
-				Route: &route.RouteAction{
-					ClusterSpecifier: &route.RouteAction_WeightedClusters{
-						WeightedClusters: &route.WeightedCluster{
-							Clusters: []*route.WeightedCluster_ClusterWeight{
+		fixedRouteMulti = &envoy_config_route_v3.Route{
+			Action: &envoy_config_route_v3.Route_Route{
+				Route: &envoy_config_route_v3.RouteAction{
+					ClusterSpecifier: &envoy_config_route_v3.RouteAction_WeightedClusters{
+						WeightedClusters: &envoy_config_route_v3.WeightedCluster{
+							Clusters: []*envoy_config_route_v3.WeightedCluster_ClusterWeight{
 								{
 									Name: clusterName,
 								},
@@ -127,12 +126,12 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 
 		routeCfgName = "some dirty routes"
 
-		config = &listener.Filter_TypedConfig{}
+		config = &envoy_config_listener_v3.Filter_TypedConfig{}
 
 		// make Consistent() happy
-		listener = &envoyapi.Listener{
-			FilterChains: []*listener.FilterChain{{
-				Filters: []*listener.Filter{{
+		listener = &envoy_config_listener_v3.Listener{
+			FilterChains: []*envoy_config_listener_v3.FilterChain{{
+				Filters: []*envoy_config_listener_v3.Filter{{
 					Name:       wellknown.HTTPConnectionManager,
 					ConfigType: config,
 				}},
@@ -151,17 +150,17 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 	It("replaces routes which point to a missing cluster", func() {
-		routeCfg := &envoyapi.RouteConfiguration{
+		routeCfg := &envoy_config_route_v3.RouteConfiguration{
 			Name: routeCfgName,
-			VirtualHosts: []*route.VirtualHost{
+			VirtualHosts: []*envoy_config_route_v3.VirtualHost{
 				{
-					Routes: []*route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						validRouteSingle,
 						missingRouteSingle,
 					},
 				},
 				{
-					Routes: []*route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						missingRouteMulti,
 						validRouteMulti,
 					},
@@ -169,17 +168,17 @@ var _ = Describe("RouteReplacingSanitizer", func() {
 			},
 		}
 
-		expectedRoutes := &envoyapi.RouteConfiguration{
+		expectedRoutes := &envoy_config_route_v3.RouteConfiguration{
 			Name: routeCfgName,
-			VirtualHosts: []*route.VirtualHost{
+			VirtualHosts: []*envoy_config_route_v3.VirtualHost{
 				{
-					Routes: []*route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						validRouteSingle,
 						fixedRouteSingle,
 					},
 				},
 				{
-					Routes: []*route.Route{
+					Routes: []*envoy_config_route_v3.Route{
 						fixedRouteMulti,
 						validRouteMulti,
 					},
