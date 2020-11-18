@@ -160,10 +160,10 @@ func (s *translatorSyncer) syncEnvoy(ctx context.Context, snap *v1.ApiSnapshot) 
 		}
 
 		// Record some metrics
-		clustersLen := len(xdsSnapshot.GetResources(xds.ClusterType).Items)
-		listenersLen := len(xdsSnapshot.GetResources(xds.ListenerType).Items)
-		routesLen := len(xdsSnapshot.GetResources(xds.RouteType).Items)
-		endpointsLen := len(xdsSnapshot.GetResources(xds.EndpointType).Items)
+		clustersLen := len(xdsSnapshot.GetResources(xds.ClusterTypeV2).Items)
+		listenersLen := len(xdsSnapshot.GetResources(xds.ListenerTypeV2).Items)
+		routesLen := len(xdsSnapshot.GetResources(xds.RouteTypeV2).Items)
+		endpointsLen := len(xdsSnapshot.GetResources(xds.EndpointTypeV2).Items)
 
 		measureResource(proxyCtx, "clusters", clustersLen)
 		measureResource(proxyCtx, "listeners", listenersLen)
@@ -214,11 +214,11 @@ func (s *translatorSyncer) updateEndpointsOnly(snapshotKey string, current envoy
 
 	newSnapshot := xds.NewSnapshotFromResources(
 		// Set endpoints and clusters calculated during this sync
-		current.GetResources(xds.EndpointType),
-		current.GetResources(xds.ClusterType),
+		current.GetResources(xds.EndpointTypeV2),
+		current.GetResources(xds.ClusterTypeV2),
 		// Keep other resources from previous snapshot
-		previous.GetResources(xds.RouteType),
-		previous.GetResources(xds.ListenerType),
+		previous.GetResources(xds.RouteTypeV2),
+		previous.GetResources(xds.ListenerTypeV2),
 	)
 
 	if err := newSnapshot.Consistent(); err != nil {

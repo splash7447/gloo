@@ -5,7 +5,7 @@ go 1.14
 require (
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.5 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/Masterminds/semver/v3 v3.0.3
+	github.com/Masterminds/semver/v3 v3.1.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b
 	github.com/avast/retry-go v2.4.3+incompatible
 	github.com/aws/aws-sdk-go v1.34.9
@@ -67,7 +67,7 @@ require (
 	github.com/solo-io/solo-apis v0.0.0-20201103221621-bbe4f60f466d
 	github.com/solo-io/solo-kit v0.13.14
 	github.com/solo-io/wasm/tools/wasme/pkg v0.0.0-20200922223809-7fff932e9e9a
-	github.com/spf13/afero v1.2.2
+	github.com/spf13/afero v1.3.4
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
@@ -85,10 +85,10 @@ require (
 	gopkg.in/AlecAivazis/survey.v1 v1.8.7
 	helm.sh/helm/v3 v3.1.2
 	k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver v0.18.2
+	k8s.io/apiextensions-apiserver v0.18.6
 	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v11.0.0+incompatible
-	k8s.io/code-generator v0.18.2
+	k8s.io/code-generator v0.18.6
 	k8s.io/helm v2.16.1+incompatible
 	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c // indirect
 	k8s.io/kubectl v0.17.2

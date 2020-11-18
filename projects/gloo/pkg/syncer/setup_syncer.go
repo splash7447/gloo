@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	envoyv2 "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	"github.com/envoyproxy/go-control-plane/pkg/resource/v2"
 	"github.com/gogo/protobuf/types"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -116,7 +115,6 @@ func NewControlPlane(ctx context.Context, grpcServer *grpc.Server, bindAddr net.
 	hasher := &xds.ProxyKeyHasher{}
 	snapshotCache := cache.NewSnapshotCache(true, hasher, contextutils.LoggerFrom(ctx))
 	xdsServer := server.NewServer(snapshotCache, callbacks)
-	envoyv2.RegisterAggregatedDiscoveryServiceServer(grpcServer, xdsServer)
 	reflection.Register(grpcServer)
 
 	return bootstrap.ControlPlane{
