@@ -60,11 +60,16 @@ func NewSnapshot(
 	routes []cache.Resource,
 	listeners []cache.Resource,
 ) *EnvoySnapshot {
+	// TODO: Copy resources
 	return &EnvoySnapshot{
 		Endpoints: cache.NewResources(version, endpoints),
+		hiddenDeprecatedEndpoints: cache.NewResources(version, nil),
 		Clusters:  cache.NewResources(version, clusters),
+		hiddenDeprecatedClusters: cache.NewResources(version, nil),
 		Routes:    cache.NewResources(version, routes),
+		hiddenDeprecatedRoutes: cache.NewResources(version, nil),
 		Listeners: cache.NewResources(version, listeners),
+		hiddenDeprecatedListeners: cache.NewResources(version, nil),
 	}
 }
 
@@ -74,6 +79,7 @@ func NewSnapshotFromResources(
 	routes cache.Resources,
 	listeners cache.Resources,
 ) cache.Snapshot {
+	// TODO: Copy resources and downgrade, maybe maintain hash to not do it too many times
 	return &EnvoySnapshot{
 		Endpoints: endpoints,
 		Clusters:  clusters,

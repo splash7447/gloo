@@ -1,17 +1,16 @@
 package syncer_test
 
 import (
-	v2 "github.com/envoyproxy/go-control-plane/envoy/api/v2"
-	"github.com/solo-io/gloo/projects/gloo/pkg/api/grpc/validation"
-	"github.com/solo-io/gloo/projects/gloo/pkg/plugins"
-	"github.com/solo-io/gloo/projects/gloo/pkg/xds"
-
 	"context"
 
+	envoy_config_listener_v3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/solo-io/gloo/projects/gloo/pkg/api/grpc/validation"
 	v1 "github.com/solo-io/gloo/projects/gloo/pkg/api/v1"
+	"github.com/solo-io/gloo/projects/gloo/pkg/plugins"
 	. "github.com/solo-io/gloo/projects/gloo/pkg/syncer"
+	"github.com/solo-io/gloo/projects/gloo/pkg/xds"
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients"
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients/factory"
 	"github.com/solo-io/solo-kit/pkg/api/v1/clients/memory"
@@ -126,7 +125,7 @@ var _ = Describe("Translate Proxy", func() {
 			envoycache.NewResources("", nil),
 			envoycache.NewResources("", nil),
 			envoycache.NewResources("old listeners from before the war", []envoycache.Resource{
-				xds.NewEnvoyResource(&v2.Listener{}),
+				xds.NewEnvoyResource(&envoy_config_listener_v3.Listener{}),
 			}),
 		)
 
