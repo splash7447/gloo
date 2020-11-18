@@ -3,13 +3,11 @@ package ratelimit_test
 import (
 	"fmt"
 
-	envoyvhostratelimit "github.com/envoyproxy/go-control-plane/envoy/api/v2/route"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
+	envoy_config_route_v3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gogo/protobuf/types"
-	regexutils "github.com/solo-io/gloo/pkg/utils/regexutils"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	. "github.com/solo-io/gloo/projects/gloo/pkg/plugins/ratelimit"
 	gloorl "github.com/solo-io/solo-apis/pkg/api/ratelimit.solo.io/v1alpha1"
 )
@@ -136,15 +134,15 @@ func ExpectActionsSame(actions []*gloorl.Action) {
 		ins, _ := jase.MarshalToString(actions[i])
 		outs, _ := jase.MarshalToString(out[i])
 		fmt.Fprintf(GinkgoWriter, "Compare \n%s\n\n%s", ins, outs)
-		remarshalled := new(envoyvhostratelimit.RateLimit_Action)
+		remarshalled := new(envoy_config_route_v3.RateLimit_Action)
 		err := jsonpb.UnmarshalString(ins, remarshalled)
 
 		// regex api is different. fix that.
 		if headers := remarshalled.GetHeaderValueMatch().GetHeaders(); headers != nil {
 			for _, h := range headers {
-				if regex := h.GetRegexMatch(); regex != "" {
-					h.HeaderMatchSpecifier = &envoyvhostratelimit.HeaderMatcher_SafeRegexMatch{
-						SafeRegexMatch: regexutils.NewRegex(nil, regex),
+				if regex := h.GetHiddenEnvoyDeprecatedRegexMatch(); regex != "" {
+					h.HeaderMatchSpecifier = &envoy_config_route_v3.HeaderMatcher_HiddenEnvoyDeprecatedRegexMatch{
+						HiddenEnvoyDeprecatedRegexMatch: regex,
 					}
 				}
 			}

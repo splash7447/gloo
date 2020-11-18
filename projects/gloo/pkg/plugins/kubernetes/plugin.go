@@ -18,6 +18,7 @@ import (
 )
 
 var _ discovery.DiscoveryPlugin = new(plugin)
+var _ plugins.UpstreamPlugin = new(plugin)
 
 type plugin struct {
 	kube kubernetes.Interface
