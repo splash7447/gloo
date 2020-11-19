@@ -19,7 +19,7 @@ func generateEnvoyConfigForCustomFilter(
 	timeout *time.Duration,
 	denyOnFail bool,
 ) *envoyratelimit.RateLimit {
-	return GenerateEnvoyConfigForFilterWith(ref, CustomDomain, customStage, timeout, denyOnFail)
+	return GenerateEnvoyConfigForFilterWith(ref, CustomDomain, CustomStage, timeout, denyOnFail)
 }
 
 func generateCustomEnvoyConfigForVhost(
@@ -28,11 +28,13 @@ func generateCustomEnvoyConfigForVhost(
 ) []*envoy_config_route_v3.RateLimit {
 	var ret []*envoy_config_route_v3.RateLimit
 	for _, rlaction := range rlactions {
-		rl := &envoy_config_route_v3.RateLimit{
-			Stage: &wrappers.UInt32Value{Value: customStage},
+		if len(rlaction.Actions) != 0 {
+			rl := &envoy_config_route_v3.RateLimit{
+				Stage: &wrappers.UInt32Value{Value: CustomStage},
+			}
+			rl.Actions = ConvertActions(ctx, rlaction.Actions)
+			ret = append(ret, rl)
 		}
-		rl.Actions = ConvertActions(ctx, rlaction.Actions)
-		ret = append(ret, rl)
 	}
 	return ret
 }
