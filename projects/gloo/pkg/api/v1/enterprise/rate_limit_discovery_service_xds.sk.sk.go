@@ -72,7 +72,7 @@ func NewRateLimitDiscoveryServiceServer(genericServer server.Server) RateLimitDi
 }
 
 func (s *rateLimitDiscoveryServiceServer) StreamRateLimitConfig(stream RateLimitDiscoveryService_StreamRateLimitConfigServer) error {
-	return s.Server.Stream(stream, RateLimitConfigType)
+	return s.Server.StreamV2(stream, RateLimitConfigType)
 }
 
 func (s *rateLimitDiscoveryServiceServer) FetchRateLimitConfig(ctx context.Context, req *discovery.DiscoveryRequest) (*discovery.DiscoveryResponse, error) {
@@ -80,7 +80,7 @@ func (s *rateLimitDiscoveryServiceServer) FetchRateLimitConfig(ctx context.Conte
 		return nil, status.Errorf(codes.Unavailable, "empty request")
 	}
 	req.TypeUrl = RateLimitConfigType
-	return s.Server.Fetch(ctx, req)
+	return s.Server.FetchV2(ctx, req)
 }
 
 func (s *rateLimitDiscoveryServiceServer) DeltaRateLimitConfig(_ RateLimitDiscoveryService_DeltaRateLimitConfigServer) error {

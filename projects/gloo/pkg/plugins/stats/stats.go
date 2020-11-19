@@ -64,7 +64,7 @@ type converter struct {
 func (c converter) convertVirtualClusters(
 	params plugins.VirtualHostParams,
 	statsConfig *stats.Stats,
-	) ([]*envoy_config_route_v3.VirtualCluster, error) {
+) ([]*envoy_config_route_v3.VirtualCluster, error) {
 	var result []*envoy_config_route_v3.VirtualCluster
 	for _, virtualCluster := range statsConfig.VirtualClusters {
 
