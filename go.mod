@@ -143,4 +143,4 @@ replace (
 	k8s.io/utils => k8s.io/utils v0.0.0-20190801114015-581e00157fb1
 )
 
-replace github.com/solo-io/solo-kit => ../solo-kit
+//replace github.com/solo-io/solo-kit => ../solo-kit
